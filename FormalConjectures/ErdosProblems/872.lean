@@ -151,6 +151,13 @@ def gameLength {n : ℕ} : GamePos n → ℕ := fun p =>
 /-- The Erdős primitive-set game length on $\{2, \dots, n\}$. -/
 def L (n : ℕ) : ℕ := gameLength (startPos n)
 
+/-! ## Combinatorial Upper Bound for `C`-Respecting Plays
+
+Ported from the Lean 4 formalization by Pommeret (generated with Aristotle and
+Claude Opus 4.7, https://www.erdosproblems.com/forum/thread/872#post-6333, May 8, 2026)
+of old-bielefelder's $23/48$ odd-centers Shortener strategy, with minor Mathlib
+compatibility adjustments and `IsPrimitive` renamed to `IsAntichainDvd`. -/
+
 /-- A set of natural numbers is *primitive* (an antichain under divisibility)
     if `a ∣ b` implies `a = b` for all `a, b` in the set. -/
 def IsAntichainDvd (A : Finset ℕ) : Prop :=
@@ -897,6 +904,12 @@ lemma play_append {n : ℕ} (π : Play n) (y : ℕ)
       intro a ha b hb hab; by_cases ha' : a = y <;> by_cases hb' : b = y <;> simp_all +decide ;
       exact π.prim_prefix _ ( by linarith [ List.idxOf_lt_length_iff.mpr ha, List.idxOf_lt_length_iff.mpr hb ] ) _ ( by aesop ) _ ( by aesop ) hab
 
+/-! ## Bridging `C`-Respecting Plays to the Minimax Game Value `L n`
+
+Formalized by Ilia Pauzner using Gemini 4 Argon: proves by induction on the
+minimax fuel recursion (`exists_crespecting_ge_gameValueAux`, `L_upper_bound`)
+that `L n = gameLength (startPos n)` is bounded above by a maximal `C`-respecting
+play, completing the disproof of `erdos_872.parts.ii`. -/
 
 lemma isPrimitive_iff {n : ℕ} {A : Finset ℕ} :
     IsPrimitive n A ↔ A ⊆ gameRange n ∧ IsAntichainDvd A := by
