@@ -1,0 +1,120 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{Disproof of Eventual Equality in Erd\H{o}s Problem 878 (Question 3b)}
+\author{Ilia Pauzner}
+\date{}
+
+\begin{document}
+\maketitle
+
+For an integer $n \ge 1$, let $\mathcal{P}(n)$ denote the set of prime factors of $n$, let $\omega(n) := |\mathcal{P}(n)|$, and for a prime $p$ let $q_p(n) := p^{\lfloor \log_p n \rfloor}$ be the largest power of $p$ not exceeding $n$. Erd\H{o}s~\cite{Er84e} defined
+\[
+f(n) := \sum_{p \in \mathcal{P}(n)} q_p(n), \qquad F(n) := \max \sum_{a \in A} a,
+\]
+where $A \subseteq [2, n]$ ranges over finite sets of pairwise coprime integers $a$ with $\mathcal{P}(a) \subseteq \mathcal{P}(n)$, and asked whether the maxima $M_f(x) := \max_{n \le x} f(n)$ and $M_F(x) := \max_{n \le x} F(n)$ satisfy $M_f(x) = M_F(x)$ for all sufficiently large $x$.
+
+\begin{theorem}
+For every $X_0 \in \mathbb{N}$, there exists $x \ge X_0$ such that $M_f(x) < M_F(x)$.
+\end{theorem}
+
+\begin{lemma}
+If $p < r$ are primes with $98 r < 100 p$, then for every $n \ge p^{p^2 + 2}$ there exists an integer $z \in [2, n]$ with $\mathcal{P}(z) \subseteq \{p, r\}$ and $98 n < 100 z$.
+\end{lemma}
+
+\begin{proof}
+Put $\ell = \lfloor \log_p n \rfloor$, $J = p^2 + 1 < \ell$, and $z_j = p^{\ell - j} r^j$. Then $z_0 = q_p(n) \le n$, while
+\[
+z_J \ge p^{\ell - J}(p + 1)^J \ge p^{\ell - J}(p^J + J p^{J - 1}) = p^{\ell - J}\bigl(p^J + (p^2 + 1)p^{J - 1}\bigr) > p^{\ell + 1} > n.
+\]
+Choose $0 \le j < J$ with $z_j \le n < z_{j + 1}$. Since $z_{j + 1} p = z_j r$, we have $98 n p < 98 z_{j + 1} p = 98 z_j r < 100 z_j p$, so $z = z_j$ has the required properties.
+\end{proof}
+
+Fix the six primes
+\[
+Q_6 := \{168000061,\, 168000101,\, 168000121,\, 168000139,\, 168000143,\, 168000167\}
+\]
+and let $C_6 := \prod_{q \in Q_6} q$. Applying Lemma~1 to the pairs $(q_1, q_2)$, $(q_3, q_4)$, and $(q_5, q_6)$ yields a threshold $N_0$ such that for every $m \ge N_0$ there exist $b_1, b_2, b_3 \in [2, m]$ with $\mathcal{P}(b_i) \subseteq \{q_{2i-1}, q_{2i}\}$ and $100 b_i > 98 m$. Whenever $C_6 \mid m$ and $R' \subseteq \mathcal{P}(m) \setminus Q_6$, the integers $b_1, b_2, b_3$ and $\{q_p(m)\}_{p \in R'}$ are pairwise coprime with prime factors dividing $m$, so
+\begin{equation}\label{eq:F-lower}
+100 F(m) > 294 m + 100 \sum_{p \in R'} q_p(m).
+\end{equation}
+
+\begin{lemma}
+For all $n \ge 1$, $f(n) < f(2n)$. Consequently, if $f(n) = M_f(y)$ with $n \le y$, then $n > y / 2$.
+\end{lemma}
+
+\begin{proof}
+Passing from $n$ to $2n$ never decreases $q_p$ for $p \in \mathcal{P}(n)$, and strictly increases the $p = 2$ term (either $q_2(2n) = 2 q_2(n)$ if $2 \mid n$, or $q_2(2n) \ge 2$ is adjoined if $2 \nmid n$).
+\end{proof}
+
+\begin{lemma}
+For every $R > 0$, $M_f(y) > R y$ for all sufficiently large $y$.
+\end{lemma}
+
+\begin{proof}
+Since $\sum_{p} 1/p = \infty$, choose $N$ with $\sum_{p < N} 1/p \ge 2R + 1$ and set $P = \prod_{p < N} p$. For $y \ge 2P$, let $m = P \lfloor y / P \rfloor > y / 2$. Every prime $p < N$ divides $m$ and satisfies $q_p(m) > m / p$, so
+\[
+M_f(y) \ge f(m) \ge \sum_{p < N} q_p(m) \ge m \sum_{p < N} \frac{1}{p} \ge (2R + 1) m > R y. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}
+For every $X_0$, there is $Y \ge \max(X_0, 20)$ with $14 q_p(\lfloor 21 Y / 20 \rfloor) < Y$ for all $p \in Q_6$.
+\end{lemma}
+
+\begin{proof}
+Let $Y_m = \max(X_0, 20) \cdot 15^m$ for $0 \le m \le 6$. If a prime $p \in Q_6$ fails the inequality at two indices $m_1 < m_2$, then $Q_a := q_p(\lfloor 21 Y_{m_1} / 20 \rfloor) \ge Y_{m_1} / 14$ and $Q_b := q_p(\lfloor 21 Y_{m_2} / 20 \rfloor) \ge Y_{m_2} / 14 \ge \frac{15}{14} Y_{m_1} > Q_a$. Since $Q_a, Q_b$ are powers of $p$,
+\[
+\frac{21}{20} Y_{m_2} \ge Q_b \ge p Q_a \ge \frac{168000000}{14} Y_{m_1} = 12000000 Y_{m_1},
+\]
+contradicting $Y_{m_2} \le 15^6 Y_{m_1} = 11390625 Y_{m_1}$. Thus each of the $6$ primes in $Q_6$ eliminates at most one of the $7$ exponents $m \in \{0, \dots, 6\}$.
+\end{proof}
+
+\begin{proof}[Proof of the Theorem]
+Suppose for contradiction that $M_F(x) \le M_f(x)$ for all $x \ge X_0$.
+
+\medskip\noindent\textbf{Step 1.}
+Let $Y \ge \max(X_0, 20, 2 N_0)$ satisfy Lemma~4. Suppose $y \in [Y, \lfloor 21 Y / 20 \rfloor]$ and $M \ge 1$ satisfy $100 M_f(y) \ge 105 (M + 8) Y$. Choose $n \le y$ with $f(n) = M_f(y)$.
+\begin{itemize}
+\item By Lemma~2, $n > y / 2 \ge N_0$.
+\item Since $f(n) \le \omega(n) n$ and $20 n \le 21 Y$, we have $105(M + 8) Y \le 100 \omega(n) n \le 105 \omega(n) Y$, so $\omega(n) \ge M + 8$.
+\item Removing $Q_6$ ($\le 6$ primes) and primes $< M$ ($\le M$ integers) from $\mathcal{P}(n)$ leaves at least two distinct primes $r_a, r_b \ge M$ outside $Q_6$.
+\item Put $R' := (\mathcal{P}(n) \setminus Q_6) \setminus \{r_a, r_b\}$ and $D := C_6 \prod_{p \in R'} p$. Since $r_a r_b \prod_{p \in R'} p \mid n \le 2Y$, we have
+\[
+D \le \left\lfloor \frac{2 C_6 Y}{M^2} \right\rfloor.
+\]
+\item Let $m := D(\lfloor n / D \rfloor + 1) \in (n, y + D]$. By Lemma~4, each $q \in Q_6$ satisfies $14 q_q(n) \le 14 q_q(\lfloor 21 Y / 20 \rfloor) < Y < 2n$, so $\sum_{q \in Q_6} q_q(n) < \frac{6}{7} n$. Using $q_{r_a}(n), q_{r_b}(n) \le n$ and $q_p(n) \le q_p(m)$ for $p \in R'$,
+\[
+f(n) < 2n + \frac{6}{7} n + \sum_{p \in R'} q_p(n) \le \frac{20}{7} n + \sum_{p \in R'} q_p(m).
+\]
+Comparing with~\eqref{eq:F-lower} gives $F(m) - f(n) > \left(\frac{294}{100} - \frac{20}{7}\right) n = \frac{29}{350} n > \frac{29}{700} y \ge \frac{29}{700} Y > \frac{Y}{25}$. Since $m \le y + D$ and $M_F(y + D) \le M_f(y + D)$, setting $y' = y + D$ yields
+\begin{equation}\label{eq:jump}
+y' \le y + \left\lfloor \frac{2 C_6 Y}{M^2} \right\rfloor \quad \text{and} \quad 25 M_f(y') \ge 25 M_f(y) + Y.
+\end{equation}
+\end{itemize}
+
+\medskip\noindent\textbf{Step 2.}
+Set $A := 2000 C_6 + 1$ and $R_k := \frac{54 C_6 Y}{A + k}$. By Lemma~3, we may choose $Y$ above so that $M_f(Y) > 2(A + 10) Y$. We construct $y_k \ge Y$ by induction on $k \ge 0$ with
+\[
+20(y_k + R_k) \le 21 Y \quad \text{and} \quad 100 M_f(y_k) \ge 105(A + 9 + k) Y.
+\]
+For $k = 0$, $y_0 = Y$ satisfies both inequalities since $20 R_0 = \frac{1080 C_6 Y}{2000 C_6 + 1} < Y$. Given $y_k$, set $M = A + 1 + k$. Over $27$ steps of size $\lfloor 2 C_6 Y / M^2 \rfloor$, the total increase in $y$ is at most
+\[
+27 \left\lfloor \frac{2 C_6 Y}{(A + 1 + k)^2} \right\rfloor \le \frac{54 C_6 Y}{(A + k)(A + k + 1)} = R_k - R_{k + 1}.
+\]
+Since $R_{k + 1} > 0$, all $27$ intermediate values remain $\le \lfloor 21 Y / 20 \rfloor$, so applying~\eqref{eq:jump} $27$ times gives $y_{k + 1}$ with $20(y_{k + 1} + R_{k + 1}) \le 21 Y$ and $100 M_f(y_{k + 1}) \ge 100 M_f(y_k) + 27 \cdot 4 Y = 100 M_f(y_k) + 108 Y > 105(A + 10 + k) Y$.
+
+Taking $k = M_f(\lfloor 21 Y / 20 \rfloor) + 1$ gives $y_k \le \lfloor 21 Y / 20 \rfloor$ and $M_f(y_k) \ge k > M_f(\lfloor 21 Y / 20 \rfloor)$, a contradiction.
+\end{proof}
+
+\begin{thebibliography}{1}
+\bibitem{Er84e}
+P.~Erd\H{o}s, \emph{On two unconventional number theoretic functions and on some related problems}, Topics in classical number theory, Vol.~I, II (Budapest, 1981), Colloq. Math. Soc. J\'anos Bolyai \textbf{34} (1984), 445--458.
+\end{thebibliography}
+
+\end{document}
