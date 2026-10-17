@@ -2,9 +2,16 @@
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage[margin=1in]{geometry}
 \usepackage[hidelinks]{hyperref}
+\usepackage{array,longtable}
+\setlength{\emergencystretch}{2em}
 
 \newtheorem*{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+
+\newcommand{\maxUpTo}{\operatorname{maxUpTo}}
+\newcommand{\rem}{\operatorname{rem}}
+\newcommand{\step}{\mathrm{step}}
+\newcommand{\Nsmooth}{N_{\mathrm{smooth}}}
 
 \title{Disproof of Eventual Equality in Erd\H{o}s Problem 878 (Question 3b)}
 \author{Ilia Pauzner}
@@ -13,15 +20,47 @@
 \begin{document}
 \maketitle
 
-For an integer $n \ge 1$, let $\mathcal{P}(n)$ denote the set of prime factors of $n$, let $\omega(n) := |\mathcal{P}(n)|$, and for a prime $p$ let $q_p(n) := p^{\lfloor \log_p n \rfloor}$ be the largest power of $p$ not exceeding $n$. Erd\H{o}s~\cite{Er84e} defined
+For an integer $n \ge 1$, let $\mathcal{P}(n)$ denote the set of prime factors of $n$, and for a prime $p$ let $q_p(n) := p^{\lfloor \log_p n \rfloor}$ be the largest power of $p$ not exceeding $n$. Erd\H{o}s~\cite{Er84e} defined
 \[
 f(n) := \sum_{p \in \mathcal{P}(n)} q_p(n), \qquad F(n) := \max \sum_{a \in A} a,
 \]
-where $A \subseteq [2, n]$ ranges over finite sets of pairwise coprime integers $a$ with $\mathcal{P}(a) \subseteq \mathcal{P}(n)$, and asked whether the maxima $M_f(x) := \max_{n \le x} f(n)$ and $M_F(x) := \max_{n \le x} F(n)$ satisfy $M_f(x) = M_F(x)$ for all sufficiently large $x$.
+where $A \subseteq [2, n]$ ranges over finite sets of pairwise coprime integers $a$ with $\mathcal{P}(a) \subseteq \mathcal{P}(n)$, and asked whether the maxima $\maxUpTo f\, x := \max_{n \le x} f(n)$ and $\maxUpTo F\, x := \max_{n \le x} F(n)$ satisfy $\maxUpTo f\, x = \maxUpTo F\, x$ for all sufficiently large $x$.
 
 \begin{theorem}
-For every $X_0 \in \mathbb{N}$, there exists $x \ge X_0$ such that $M_f(x) < M_F(x)$.
+For every $X_0 \in \mathbb{N}$, there exists $x \ge X_0$ such that $\maxUpTo f\, x < \maxUpTo F\, x$.
 \end{theorem}
+
+In particular, $\maxUpTo f\, x \ne \maxUpTo F\, x$ for arbitrarily large $x$, so the answer to Question 3b is negative.
+
+\subsection*{Correspondence with the Lean formalization}
+The proof below is the one formalized in \nolinkurl{FormalConjectures/ErdosProblems/878.lean}, step by step and with the same names ($q_1, \dots, q_6$, $Q_6$, $C_6$, $\Nsmooth$, $N_2$, $A$, $M$, $\step$, $\rem$, $K$, $Y_0$, $Y_a$, $Y_b$, $Q_a$, $Q_b$, $R'$, $D$, $r_a$, $r_b$, $b_i$, $J$, $\ell$, $z_j$, \dots). All variables are natural numbers, except $\rem(k)$, which is real. Some inequalities are written in the opposite direction, or with fractions where Lean clears denominators (e.g.\ $Q_a \ge Y_a / 14$ for $Y_a \le 14 Q_a$, and $\sum_{q \in Q_6} q_q(n) < \frac{6}{7} n$ for $7 \sum_{q \in Q_6} q_q(n) < 6n$), and a few are stated in a stronger form than Lean needs (e.g.\ strict instead of non-strict). The remaining correspondences are:
+\begingroup
+\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.36\textwidth}>{\raggedright\arraybackslash}p{0.6\textwidth}@{}}
+\hline
+This note & Lean \\
+\hline
+\endhead
+$\mathcal{P}(n)$; $\lfloor \log_p n \rfloor$; $q_p(n)$ & \texttt{n.primeFactors}; \texttt{Nat.log p n}; \texttt{q\_p p n} (in Lemma~2, $q_2(\cdot)$ is \texttt{q\_p 2}, not the constant \texttt{q2}) \\
+$\lfloor a / b \rfloor$; $[a, b]$; $(a, b]$ & \texttt{a / b} in $\mathbb{N}$; \texttt{Finset.Icc a b}; $a < \cdot \le b$ \\
+$\maxUpTo f\, x$ & \texttt{maxUpTo f x} (maximum over $n \in \{0, \dots, x\}$; as $f(0) = F(0) = 0$ in Lean, including $n = 0$ does not change the maximum) \\
+an integer $a \in [2, n]$ with $\mathcal{P}(a) \subseteq P$ & \texttt{IsAdmissibleTerm n P a} \\
+$14 q_p(\lfloor 21 Y / 20 \rfloor) < Y$ & \texttt{IsGoodForPrime p Y} \\
+$q_1, \dots, q_6$ are six distinct primes; $C_6 > 0$ & \texttt{Q6\_prime}, \texttt{Q6\_card}; \texttt{C6\_pos} \\
+Theorem; the sentence after it & \texttt{erdos\_878\_q3\_disproved}; \texttt{erdos\_878.parts.iii\_eventually} \\
+Lemma~1 & \texttt{lemma1\_exists\_smooth\_gt}; the choice of $j$ is \texttt{exists\_step\_crossing} \\
+inequality~\eqref{eq:F-lower} & \texttt{exists\_F\_ge\_of\_smooth}, via \texttt{q\_p\_admissible} and \texttt{sum\_le\_F\_of\_disjoint} \\
+Lemma~2 & \texttt{lemma2\_f\_two\_mul\_gt} \\
+Lemma~3 & \texttt{lemma3\_superlinear\_maxUpTo\_f} \\
+Lemma~4 & \texttt{lemma4\_exists\_good\_Y} \\
+contradiction hypothesis & \texttt{h\_no\_jump} \\
+Step~1 & \texttt{single\_step\_jump}; the decomposition of $f(n)$ is \texttt{sum\_sdiff\_erase\_two\_le}, and $r_a r_b \prod_{p \in R'} p \le n$ is \texttt{mul\_mul\_prod\_erase\_le} \\
+Step~2: iterating Step~1; $\rem$; $20(z + \rem(k)) \le 21 Y \Rightarrow z \le \lfloor 21 Y / 20 \rfloor$; the induction on $k$ & \texttt{iter}; \texttt{rem}; \texttt{le\_cap}; \texttt{h\_seq} \\
+monotonicity of $q_p$ and $\maxUpTo$; $g(n) \le \maxUpTo g\, x$ for $n \le x$ ($g = f, F$) & \texttt{q\_p\_mono}, \texttt{maxUpTo\_mono}; \texttt{le\_maxUpTo} \\
+\hline
+\end{longtable}
+\endgroup
+The Lean file states Lemma~2 before Lemma~1, and Step~1 as the separate lemma \texttt{single\_step\_jump} before Lemmas~3 and~4; its hypotheses beyond those of Step~1 (inequality~\eqref{eq:F-lower}, the contradiction hypothesis for $x \ge Y$, $20 \le Y$, $2 \Nsmooth \le Y$, and the conclusion of Lemma~4 for $Y$) are the standing assumptions of Step~1 here.
 
 \begin{lemma}
 If $p < r$ are primes with $98 r < 100 p$, then for every $n \ge p^{p^2 + 2}$ there exists an integer $z \in [2, n]$ with $\mathcal{P}(z) \subseteq \{p, r\}$ and $98 n < 100 z$.
@@ -37,15 +76,18 @@ Choose $0 \le j < J$ with $z_j \le n < z_{j + 1}$. Since $z_{j + 1} p = z_j r$, 
 
 Fix the six primes
 \[
-Q_6 := \{168000061,\, 168000101,\, 168000121,\, 168000139,\, 168000143,\, 168000167\}
+\begin{aligned}
+q_1 &:= 168000061, & q_2 &:= 168000101, & q_3 &:= 168000121, \\
+q_4 &:= 168000139, & q_5 &:= 168000143, & q_6 &:= 168000167,
+\end{aligned}
 \]
-and let $C_6 := \prod_{q \in Q_6} q$. Applying Lemma~1 to the pairs $(q_1, q_2)$, $(q_3, q_4)$, and $(q_5, q_6)$ yields a threshold $N_0$ such that for every $m \ge N_0$ there exist $b_1, b_2, b_3 \in [2, m]$ with $\mathcal{P}(b_i) \subseteq \{q_{2i-1}, q_{2i}\}$ and $100 b_i > 98 m$. Whenever $C_6 \mid m$ and $R' \subseteq \mathcal{P}(m) \setminus Q_6$, the integers $b_1, b_2, b_3$ and $\{q_p(m)\}_{p \in R'}$ are pairwise coprime with prime factors dividing $m$, so
+let $Q_6 := \{q_1, \dots, q_6\}$, and let $C_6 := \prod_{p \in Q_6} p$. Applying Lemma~1 to the pairs $(q_1, q_2)$, $(q_3, q_4)$, and $(q_5, q_6)$ (each satisfies $q_{2i-1} < q_{2i}$ and $98 q_{2i} < 100 q_{2i-1}$) yields the threshold $\Nsmooth := q_1^{q_1^2 + 2} + q_3^{q_3^2 + 2} + q_5^{q_5^2 + 2}$, which exceeds each $q_{2i-1}^{q_{2i-1}^2 + 2}$, such that for every $m \ge \Nsmooth$ there exist $b_1, b_2, b_3 \in [2, m]$ with $\mathcal{P}(b_i) \subseteq \{q_{2i-1}, q_{2i}\}$ and $100 b_i > 98 m$. Whenever $m \ge \Nsmooth$, $R' \subseteq \mathcal{P}(m)$ with $R' \cap Q_6 = \emptyset$, and $Q_6 \subseteq \mathcal{P}(m)$, the integers $b_1, b_2, b_3$ and $q_p(m) \in [2, m]$ ($p \in R'$) are pairwise coprime with prime factors dividing $m$, so
 \begin{equation}\label{eq:F-lower}
 100 F(m) > 294 m + 100 \sum_{p \in R'} q_p(m).
 \end{equation}
 
 \begin{lemma}
-For all $n \ge 1$, $f(n) < f(2n)$. Consequently, if $f(n) = M_f(y)$ with $n \le y$, then $n > y / 2$.
+For all $n \ge 1$, $f(n) < f(2n)$.
 \end{lemma}
 
 \begin{proof}
@@ -53,13 +95,13 @@ Passing from $n$ to $2n$ never decreases $q_p$ for $p \in \mathcal{P}(n)$, and s
 \end{proof}
 
 \begin{lemma}
-For every $R > 0$, $M_f(y) > R y$ for all sufficiently large $y$.
+For every $R \in \mathbb{N}$, there is $N_2$ such that $\maxUpTo f\, y > R y$ for all $y \ge N_2$.
 \end{lemma}
 
 \begin{proof}
-Since $\sum_{p} 1/p = \infty$, choose $N$ with $\sum_{p < N} 1/p \ge 2R + 1$ and set $P = \prod_{p < N} p$. For $y \ge 2P$, let $m = P \lfloor y / P \rfloor > y / 2$. Every prime $p < N$ divides $m$ and satisfies $q_p(m) > m / p$, so
+Since $\sum_{p} 1/p = \infty$, choose $N$ with $\sum_{p < N} 1/p \ge 2R + 1$ and set $P = \prod_{p < N} p$ and $N_2 = 2P$. For $y \ge N_2$, let $m = P \lfloor y / P \rfloor > y / 2$. Every prime $p < N$ divides $m$ and satisfies $q_p(m) > m / p$, so
 \[
-M_f(y) \ge f(m) \ge \sum_{p < N} q_p(m) \ge m \sum_{p < N} \frac{1}{p} \ge (2R + 1) m > R y. \qedhere
+\maxUpTo f\, y \ge f(m) \ge \sum_{p < N} q_p(m) \ge m \sum_{p < N} \frac{1}{p} \ge (2R + 1) m > R y. \qedhere
 \]
 \end{proof}
 
@@ -68,48 +110,50 @@ For every $X_0$, there is $Y \ge \max(X_0, 20)$ with $14 q_p(\lfloor 21 Y / 20 \
 \end{lemma}
 
 \begin{proof}
-Let $Y_m = \max(X_0, 20) \cdot 15^m$ for $0 \le m \le 6$. If a prime $p \in Q_6$ fails the inequality at two indices $m_1 < m_2$, then $Q_a := q_p(\lfloor 21 Y_{m_1} / 20 \rfloor) \ge Y_{m_1} / 14$ and $Q_b := q_p(\lfloor 21 Y_{m_2} / 20 \rfloor) \ge Y_{m_2} / 14 \ge \frac{15}{14} Y_{m_1} > Q_a$. Since $Q_a, Q_b$ are powers of $p$,
+Let $Y_0 = \max(X_0, 20)$. If a prime $p \in Q_6$ fails the inequality for $Y_a := Y_0 \cdot 15^{m_1}$ and $Y_b := Y_0 \cdot 15^{m_2}$ with $0 \le m_1 < m_2 \le 6$, then $Q_a := q_p(\lfloor 21 Y_a / 20 \rfloor) \ge Y_a / 14$ and $Q_b := q_p(\lfloor 21 Y_b / 20 \rfloor) \ge Y_b / 14 \ge \frac{15}{14} Y_a > \frac{21}{20} Y_a \ge Q_a$. Since $Q_a, Q_b$ are powers of $p$,
 \[
-\frac{21}{20} Y_{m_2} \ge Q_b \ge p Q_a \ge \frac{168000000}{14} Y_{m_1} = 12000000 Y_{m_1},
+\frac{21}{20} Y_b \ge Q_b \ge p Q_a \ge \frac{168000000}{14} Y_a = 12000000 Y_a,
 \]
-contradicting $Y_{m_2} \le 15^6 Y_{m_1} = 11390625 Y_{m_1}$. Thus each of the $6$ primes in $Q_6$ eliminates at most one of the $7$ exponents $m \in \{0, \dots, 6\}$.
+contradicting $Y_b \le 15^6 Y_a = 11390625 Y_a$ (note that $\frac{21}{20} \cdot 11390625 = 11960156.25 < 12000000$). Thus each of the $6$ primes in $Q_6$ eliminates at most one of the $7$ exponents $m \in \{0, \dots, 6\}$, and some $Y = Y_0 \cdot 15^m$ satisfies the lemma.
 \end{proof}
 
 \begin{proof}[Proof of the Theorem]
-Suppose for contradiction that $M_F(x) \le M_f(x)$ for all $x \ge X_0$.
+Suppose for contradiction that $\maxUpTo F\, x \le \maxUpTo f\, x$ for all $x \ge X_0$. Put $A := 2000 C_6 + 1$. By Lemma~3 with $R = 2(A + 10)$, there is $N_2$ such that $\maxUpTo f\, y > 2(A + 10) y$ for all $y \ge N_2$. Let $Y$ be given by Lemma~4 applied to $\max(X_0, N_2, 2 \Nsmooth)$, so that $Y \ge \max(X_0, N_2, 20, 2 \Nsmooth)$ and $14 q_p(\lfloor 21 Y / 20 \rfloor) < Y$ for all $p \in Q_6$.
 
 \medskip\noindent\textbf{Step 1.}
-Let $Y \ge \max(X_0, 20, 2 N_0)$ satisfy Lemma~4. Suppose $y \in [Y, \lfloor 21 Y / 20 \rfloor]$ and $M \ge 1$ satisfy $100 M_f(y) \ge 105 (M + 8) Y$. Choose $n \le y$ with $f(n) = M_f(y)$.
+Suppose $y \in [Y, \lfloor 21 Y / 20 \rfloor]$ and $M \ge 1$ satisfy $100 \maxUpTo f\, y \ge 105 (M + 8) Y$. Choose $n \le y$ with $f(n) = \maxUpTo f\, y$.
 \begin{itemize}
-\item By Lemma~2, $n > y / 2 \ge N_0$.
-\item Since $f(n) \le \omega(n) n$ and $20 n \le 21 Y$, we have $105(M + 8) Y \le 100 \omega(n) n \le 105 \omega(n) Y$, so $\omega(n) \ge M + 8$.
+\item Then $n \ge 1$, as $f(n) = \maxUpTo f\, y \ge \frac{105 (M + 8) Y}{100} > 0$. If $2n \le y$, then $f(2n) \le \maxUpTo f\, y = f(n)$, contradicting Lemma~2; hence $y < 2n$, and $n > y / 2 \ge \Nsmooth$.
+\item Since $f(n) \le |\mathcal{P}(n)| \, n$ and $20 n \le 21 Y$, we have $105(M + 8) Y \le 100 |\mathcal{P}(n)| \, n \le 105 |\mathcal{P}(n)| \, Y$, so $|\mathcal{P}(n)| \ge M + 8$.
 \item Removing $Q_6$ ($\le 6$ primes) and primes $< M$ ($\le M$ integers) from $\mathcal{P}(n)$ leaves at least two distinct primes $r_a, r_b \ge M$ outside $Q_6$.
-\item Put $R' := (\mathcal{P}(n) \setminus Q_6) \setminus \{r_a, r_b\}$ and $D := C_6 \prod_{p \in R'} p$. Since $r_a r_b \prod_{p \in R'} p \mid n \le 2Y$, we have
+\item Put $R' := (\mathcal{P}(n) \setminus Q_6) \setminus \{r_a, r_b\}$ and $D := \bigl(\prod_{p \in R'} p\bigr) C_6$. Since $r_a r_b \prod_{p \in R'} p$ divides $n$, it is at most $n \le 2Y$; as $M^2 \le r_a r_b$, we get $M^2 D \le 2 C_6 Y$, that is,
 \[
 D \le \left\lfloor \frac{2 C_6 Y}{M^2} \right\rfloor.
 \]
-\item Let $m := D(\lfloor n / D \rfloor + 1) \in (n, y + D]$. By Lemma~4, each $q \in Q_6$ satisfies $14 q_q(n) \le 14 q_q(\lfloor 21 Y / 20 \rfloor) < Y < 2n$, so $\sum_{q \in Q_6} q_q(n) < \frac{6}{7} n$. Using $q_{r_a}(n), q_{r_b}(n) \le n$ and $q_p(n) \le q_p(m)$ for $p \in R'$,
+\item Let $m := D(\lfloor n / D \rfloor + 1) \in (n, y + D]$. By Lemma~4, each $q \in Q_6$ satisfies $14 q_q(n) \le 14 q_q(\lfloor 21 Y / 20 \rfloor) < Y < 2n$, so $\sum_{q \in Q_6} q_q(n) < \frac{6}{7} n$. Since every prime factor of $n$ lies in $\{r_a, r_b\} \cup R' \cup Q_6$, we have $f(n) \le q_{r_a}(n) + q_{r_b}(n) + \sum_{p \in R'} q_p(n) + \sum_{q \in Q_6} q_q(n)$. Using $q_{r_a}(n), q_{r_b}(n) \le n$ and $q_p(n) \le q_p(m)$ for $p \in R'$,
 \[
 f(n) < 2n + \frac{6}{7} n + \sum_{p \in R'} q_p(n) \le \frac{20}{7} n + \sum_{p \in R'} q_p(m).
 \]
-Comparing with~\eqref{eq:F-lower} gives $F(m) - f(n) > \left(\frac{294}{100} - \frac{20}{7}\right) n = \frac{29}{350} n > \frac{29}{700} y \ge \frac{29}{700} Y > \frac{Y}{25}$. Since $m \le y + D$ and $M_F(y + D) \le M_f(y + D)$, setting $y' = y + D$ yields
+Since $D \mid m$, we have $R' \subseteq \mathcal{P}(m)$ and $Q_6 \subseteq \mathcal{P}(m)$; also $R' \cap Q_6 = \emptyset$ and $m > n \ge \Nsmooth$. So comparing with~\eqref{eq:F-lower} gives $F(m) - f(n) > \left(\frac{294}{100} - \frac{20}{7}\right) n = \frac{29}{350} n > \frac{29}{700} y \ge \frac{29}{700} Y > \frac{Y}{25}$. Since $m \le y + D$ and $\maxUpTo F\,(y + D) \le \maxUpTo f\,(y + D)$ (as $y + D \ge Y \ge X_0$), setting $y' = y + D$ yields
 \begin{equation}\label{eq:jump}
-y' \le y + \left\lfloor \frac{2 C_6 Y}{M^2} \right\rfloor \quad \text{and} \quad 25 M_f(y') \ge 25 M_f(y) + Y.
+y \le y' \le y + \left\lfloor \frac{2 C_6 Y}{M^2} \right\rfloor \quad \text{and} \quad 25 \maxUpTo f\, y' \ge 25 \maxUpTo f\, y + Y.
 \end{equation}
 \end{itemize}
 
 \medskip\noindent\textbf{Step 2.}
-Set $A := 2000 C_6 + 1$ and $R_k := \frac{54 C_6 Y}{A + k}$. By Lemma~3, we may choose $Y$ above so that $M_f(Y) > 2(A + 10) Y$. We construct $y_k \ge Y$ by induction on $k \ge 0$ with
-\[
-20(y_k + R_k) \le 21 Y \quad \text{and} \quad 100 M_f(y_k) \ge 105(A + 9 + k) Y.
-\]
-For $k = 0$, $y_0 = Y$ satisfies both inequalities since $20 R_0 = \frac{1080 C_6 Y}{2000 C_6 + 1} < Y$. Given $y_k$, set $M = A + 1 + k$. Over $27$ steps of size $\lfloor 2 C_6 Y / M^2 \rfloor$, the total increase in $y$ is at most
-\[
-27 \left\lfloor \frac{2 C_6 Y}{(A + 1 + k)^2} \right\rfloor \le \frac{54 C_6 Y}{(A + k)(A + k + 1)} = R_k - R_{k + 1}.
-\]
-Since $R_{k + 1} > 0$, all $27$ intermediate values remain $\le \lfloor 21 Y / 20 \rfloor$, so applying~\eqref{eq:jump} $27$ times gives $y_{k + 1}$ with $20(y_{k + 1} + R_{k + 1}) \le 21 Y$ and $100 M_f(y_{k + 1}) \ge 100 M_f(y_k) + 27 \cdot 4 Y = 100 M_f(y_k) + 108 Y > 105(A + 10 + k) Y$.
+Iterating Step~1 gives: if $Y \le y$, $M \ge 1$, $100 \maxUpTo f\, y \ge 105 (M + 8) Y$, and $y + j \lfloor 2 C_6 Y / M^2 \rfloor \le \lfloor 21 Y / 20 \rfloor$, then there is $y' \ge y$ with $y' \le y + j \lfloor 2 C_6 Y / M^2 \rfloor$ and $25 \maxUpTo f\, y' \ge 25 \maxUpTo f\, y + j Y$. This follows by induction on $j$ (for $j = 0$ take $y' = y$), since the $y'$ obtained for $j$ satisfies $Y \le y' \le \lfloor 21 Y / 20 \rfloor$ and $\maxUpTo f\, y' \ge \maxUpTo f\, y$, so that Step~1 applies to it.
 
-Taking $k = M_f(\lfloor 21 Y / 20 \rfloor) + 1$ gives $y_k \le \lfloor 21 Y / 20 \rfloor$ and $M_f(y_k) \ge k > M_f(\lfloor 21 Y / 20 \rfloor)$, a contradiction.
+Let $\rem(k) := \frac{54 C_6 Y}{A + k}$, and note that $20(z + \rem(k)) \le 21 Y$ implies $z \le \lfloor 21 Y / 20 \rfloor$, since $\rem(k) \ge 0$ and $z \in \mathbb{N}$. We construct $y_k \ge Y$ by induction on $k \ge 0$ with
+\[
+20(y_k + \rem(k)) \le 21 Y \quad \text{and} \quad 100 \maxUpTo f\, y_k \ge 105(A + 1 + k + 8) Y.
+\]
+For $k = 0$, $y_0 = Y$ satisfies both inequalities since $20 \rem(0) = \frac{1080 C_6 Y}{2000 C_6 + 1} < Y$ and $100 \maxUpTo f\, Y > 200 (A + 10) Y \ge 105 (A + 1 + 0 + 8) Y$. Given $y_k$, set $M = A + 1 + k \ge 1$ and $\step = \lfloor 2 C_6 Y / M^2 \rfloor$. Since $\step \cdot M^2 \le 2 C_6 Y$ and $(A + k)(A + k + 1) \le M^2$,
+\[
+27 \cdot \step \le \frac{54 C_6 Y}{(A + k)(A + k + 1)} = \rem(k) - \rem(k + 1),
+\]
+so $20(y_k + 27 \cdot \step + \rem(k + 1)) \le 20(y_k + \rem(k)) \le 21 Y$ and hence $y_k + 27 \cdot \step \le \lfloor 21 Y / 20 \rfloor$. Iterating Step~1 $27$ times from $y_k$ (with this $M$, for which $105(M + 8) Y = 105(A + 1 + k + 8) Y$) therefore gives $y_{k + 1}$ with $y_k \le y_{k + 1} \le y_k + 27 \cdot \step$, so that $20(y_{k + 1} + \rem(k + 1)) \le 21 Y$, and $100 \maxUpTo f\, y_{k + 1} \ge 100 \maxUpTo f\, y_k + 27 \cdot 4 Y \ge 105(A + 1 + k + 8) Y + 108 Y > 105(A + 1 + (k + 1) + 8) Y$.
+
+Taking $K = \maxUpTo f\, \lfloor 21 Y / 20 \rfloor + 1$, the first inequality for $y_K$ gives $y_K \le \lfloor 21 Y / 20 \rfloor$, hence $\maxUpTo f\, y_K \le \maxUpTo f\, \lfloor 21 Y / 20 \rfloor < K$, while the second gives $100 \maxUpTo f\, y_K \ge 105(A + 1 + K + 8) Y > 100 K$, a contradiction.
 \end{proof}
 
 \begin{thebibliography}{1}
