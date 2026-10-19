@@ -46,18 +46,18 @@ Let $a_1, \dots, a_k \in \{2, \dots, n\}$, and suppose that their sets of prime 
 
 \section{Idea of the proof}
 
-Suppose that $M_F(x) = M_f(x)$ for all large $x$, and let $n \le y$ be a point where $f$ attains its maximum $M_f(y)$ on $[1, y]$. The value $f(n)$ is a sum of prime powers, each at most $n$, one for each prime factor of $n$. We construct a number $m$ only slightly larger than $n$ with $F(m) \ge f(n) + Y/25$, where $Y \le y \le 1.05\,Y$ for a fixed scale $Y$:
+Suppose that $M_F(x) = M_f(x)$ for all large $x$, and let $n \le y$ be a point where $f$ attains its maximum $M_f(y)$ on $[1, y]$. The value $f(n)$ is a sum of prime powers, each at most $n \le y$, one for each prime factor of $n$. We construct a number $m$ only slightly larger than $y$ with $F(m) \ge f(n) + Y/30$, where $Y \le y \le \frac{19}{18} Y$ for a fixed scale $Y$:
 \begin{itemize}
 \item $m$ is divisible by almost all prime factors of $n$, so $F(m)$ can reuse the corresponding terms of $f(n)$;
-\item two large prime factors $r_a, r_b$ of $n$ are dropped, which loses at most $2n$;
-\item six fixed primes $s_1, \dots, s_6$ divide $m$. The scale $Y$ is chosen so that their terms in $f(n)$ are small (less than $\frac{6}{7}n$ in total), and in $F(m)$ we replace them by three numbers $b_1, b_2, b_3 \in (0.98\,m, m]$, each built from two of the $s_i$, which contribute more than $2.94\,m$.
+\item two large prime factors $r_a, r_b$ of $n$ are dropped, which loses at most $2n \le 2y$;
+\item six fixed primes $s_1, \dots, s_6$ divide $m$. The scale $Y$ is chosen so that their terms in $f(n)$ are small (less than $\frac{2}{3}y$ in total), and in $F(m)$ we replace them by three numbers $b_1, b_2, b_3 \in (0.9\,m, m]$, each built from two of the $s_i$, which contribute more than $2.7\,m > 2.7\,y$.
 \end{itemize}
-Since $2.94 > 2 + \frac{6}{7}$, this gains a fixed proportion of $n$. As $M_F = M_f$, the function $M_f$ must therefore increase by at least $Y/25$ on the short interval from $y$ to $y + (m - n)$. If $r_a, r_b \ge M$, the step $m - n$ is at most $2CY/M^2$, where $C = s_1 \cdots s_6$; and $n$ has more than $M$ prime factors as soon as $M_f(y)/y$ is large compared with $M$. Iterating, $M_f$ grows faster and faster while the steps shrink like $1/M^2$, so infinitely many jumps fit into the bounded window $[Y, 1.05\,Y]$, which is impossible.
+Since $2.7 - 2 - \frac{2}{3} = \frac{1}{30} > 0$, this gains at least $y/30 \ge Y/30$. As $M_F = M_f$, the function $M_f$ must therefore increase by at least $Y/30$ on the short interval from $y$ to $y + D$, where $m \le y + D$. If $r_a, r_b \ge M$, the step $D$ is at most $2CY/M^2$, where $C = s_1 \cdots s_6$; and $n$ has more than $M$ prime factors as soon as $M_f(y)/y$ is large compared with $M$. Iterating, $M_f$ grows faster and faster while the steps shrink like $1/M^2$, so infinitely many jumps fit into the bounded window $[Y, \frac{19}{18} Y]$, which is impossible.
 
-\section{Four lemmas}
+\section{Three lemmas}
 
-\begin{lemma}[Smooth numbers just below $n$]\label{lem:smooth}
-Let $p < r$ be primes with $98 r < 100 p$. For every $n \ge p^{p^2 + 2}$ there is an integer $z$ with $0.98\, n < z \le n$ all of whose prime factors lie in $\{p, r\}$; moreover $z \ge 2$.
+\begin{lemma}[Products of two primes just below $n$]\label{lem:smooth}
+Let $p < r$ be primes with $9 r < 10 p$. For every $n \ge p^{p^2 + 2}$ there is an integer $z$ with $0.9\, n < z \le n$ all of whose prime factors lie in $\{p, r\}$; moreover $z \ge 2$.
 \end{lemma}
 
 \begin{proof}
@@ -65,19 +65,11 @@ Let $\ell = \lfloor \log_p n \rfloor$, so that $p^\ell \le n < p^{\ell + 1}$ and
 \[
 z_j = p^{\ell - j} r^j \qquad (0 \le j \le J).
 \]
-Each term of this sequence is $r/p < 100/98$ times the previous one. It starts at $z_0 = p^\ell \le n$ and ends above $n$: since $r \ge p + 1$,
+Each term of this sequence is $r/p < 10/9$ times the previous one. It starts at $z_0 = p^\ell \le n$ and ends above $n$: since $r \ge p + 1$,
 \[
 z_J \ge p^{\ell - J} (p + 1)^J \ge p^{\ell - J} \bigl(p^J + J p^{J - 1}\bigr) = p^\ell + p^{\ell + 1} + p^{\ell - 1} > p^{\ell + 1} > n.
 \]
-Let $j < J$ be the last index with $z_j \le n$. Then $n < z_{j + 1} = z_j \cdot r/p < \frac{100}{98} z_j$, so $z = z_j$ satisfies $0.98\, n < z \le n$. Also $z \ge z_0 \ge p \ge 2$.
-\end{proof}
-
-\begin{lemma}[Maximizers lie in the upper half]\label{lem:double}
-For every $n \ge 1$ we have $f(2n) > f(n)$. Consequently, if $1 \le n \le y$ and $f(n) = M_f(y)$, then $n > y/2$.
-\end{lemma}
-
-\begin{proof}
-Every prime factor $p$ of $n$ divides $2n$, and $q_p(2n) \ge q_p(n)$. The term for $p = 2$ strictly increases: if $2 \mid n$, then $q_2(2n) = 2 q_2(n)$, and if $2 \nmid n$, then $f(2n)$ has the additional term $q_2(2n) \ge 2$. Hence $f(2n) > f(n)$. If $n \le y/2$, then $2n \le y$ and $f(2n) > f(n) = M_f(y)$, which is impossible.
+Let $j < J$ be the last index with $z_j \le n$. Then $n < z_{j + 1} = z_j \cdot r/p < \frac{10}{9} z_j$, so $z = z_j$ satisfies $0.9\, n < z \le n$. Also $z \ge z_0 \ge p \ge 2$.
 \end{proof}
 
 \begin{lemma}[$M_f$ grows faster than linearly]\label{lem:superlinear}
@@ -95,27 +87,27 @@ M_f(y) \ge f(t) \ge \sum_{p < N} q_p(t) > t \sum_{p < N} \frac{1}{p} \ge (2\lamb
 \noindent\textbf{Six special primes.} Let
 \[
 \begin{aligned}
-s_1 &= 168000061, & s_2 &= 168000101, & s_3 &= 168000121, \\
-s_4 &= 168000139, & s_5 &= 168000143, & s_6 &= 168000167.
+s_1 &= 10000019, & s_2 &= 10000079, & s_3 &= 10000103, \\
+s_4 &= 10000121, & s_5 &= 10000139, & s_6 &= 10000141.
 \end{aligned}
 \]
-These six numbers are primes with $s_1 < s_2 < \dots < s_6$, and apart from this the proof uses only the following two properties:
+These six numbers are the first six primes above $10^7$, and apart from primality and $s_1 < s_2 < \dots < s_6$ the proof uses only the following two properties:
 \begin{itemize}
-\item $98\, s_{2i} < 100\, s_{2i - 1}$ for $i = 1, 2, 3$ (the primes differ by less than $200$);
-\item every $s_i$ is larger than $14 \cdot \frac{21}{20} \cdot 15^6 = 167\,442\,187.5$.
+\item $9\, s_{2i} < 10\, s_{2i - 1}$ for $i = 1, 2, 3$;
+\item every $s_i$ is larger than $9 \cdot \frac{19}{18} \cdot 10^6 = 9\,500\,000$.
 \end{itemize}
 Let $S = \{s_1, \dots, s_6\}$ and $C = s_1 s_2 \cdots s_6$.
 
 \begin{lemma}[Choosing the scale]\label{lem:scale}
-Call an integer $Y \ge 1$ \emph{good} if $q_p(\lfloor \tfrac{21}{20} Y \rfloor) < \tfrac{1}{14} Y$ for every $p \in S$. For every integer $Y_0 \ge 1$, one of the seven numbers $Y_0, 15 Y_0, 15^2 Y_0, \dots, 15^6 Y_0$ is good.
+Call an integer $Y \ge 1$ \emph{good} if $q_p(\lfloor \tfrac{19}{18} Y \rfloor) < \tfrac{1}{9} Y$ for every $p \in S$. For every integer $Y_0 \ge 1$, one of the seven numbers $Y_0, 10 Y_0, 10^2 Y_0, \dots, 10^6 Y_0$ is good.
 \end{lemma}
 
 \begin{proof}
-Fix $p \in S$; we show that the inequality for $p$ fails for at most one of the numbers $Y_i = 15^i Y_0$. Suppose it fails for $Y_i$ and $Y_j$ with $i < j$, and let $u = q_p(\lfloor \frac{21}{20} Y_i \rfloor)$ and $v = q_p(\lfloor \frac{21}{20} Y_j \rfloor)$, so that $u \ge \frac{1}{14} Y_i$ and $v \ge \frac{1}{14} Y_j$. Since $Y_j \ge 15\, Y_i$,
+Fix $p \in S$; we show that the inequality for $p$ fails for at most one of the numbers $Y_i = 10^i Y_0$. Suppose it fails for $Y_i$ and $Y_j$ with $i < j$, and let $u = q_p(\lfloor \frac{19}{18} Y_i \rfloor)$ and $v = q_p(\lfloor \frac{19}{18} Y_j \rfloor)$, so that $u \ge \frac{1}{9} Y_i$ and $v \ge \frac{1}{9} Y_j$. Since $Y_j \ge 10\, Y_i$,
 \[
-u \le \tfrac{21}{20} Y_i < \tfrac{15}{14} Y_i \le \tfrac{1}{14} Y_j \le v.
+u \le \tfrac{19}{18} Y_i < \tfrac{10}{9} Y_i \le \tfrac{1}{9} Y_j \le v.
 \]
-Thus $v > u$, and as both are powers of $p$, $v \ge p\, u \ge \frac{p}{14} Y_i$. On the other hand, $v \le \frac{21}{20} Y_j \le \frac{21}{20} \cdot 15^6\, Y_i$. Together these give $p \le 14 \cdot \frac{21}{20} \cdot 15^6$, contrary to the choice of the $s_i$. Since $S$ has six elements and there are seven numbers $Y_i$, some $Y_i$ satisfies the inequality for every $p \in S$.
+Thus $v > u$, and as both are powers of $p$, $v \ge p\, u \ge \frac{p}{9} Y_i$. On the other hand, $v \le \frac{19}{18} Y_j \le \frac{19}{18} \cdot 10^6\, Y_i$. Together these give $p \le 9 \cdot \frac{19}{18} \cdot 10^6 = 9.5 \times 10^6$, contrary to $p > 10^7$. Since $S$ has six elements and there are seven numbers $Y_i$, some $Y_i$ satisfies the inequality for every $p \in S$.
 \end{proof}
 
 \section{The key construction}
@@ -125,14 +117,14 @@ Let $N_0 = s_5^{\,s_5^2 + 2}$. Since $s_1 < s_3 < s_5$, Lemma~\ref{lem:smooth} a
 \begin{lemma}[Three pairs]\label{lem:pairs}
 Let $m \ge N_0$ be divisible by $C$, and let $R$ be a set of primes dividing $m$ with $R \cap S = \emptyset$. Then
 \[
-F(m) > 2.94\, m + \sum_{p \in R} q_p(m).
+F(m) > 2.7\, m + \sum_{p \in R} q_p(m).
 \]
 \end{lemma}
 
 \begin{proof}
-By Lemma~\ref{lem:smooth}, for $i = 1, 2, 3$ there is an integer $b_i$ with $0.98\, m < b_i \le m$ whose prime factors lie in $\{s_{2i - 1}, s_{2i}\}$. The numbers $b_1, b_2, b_3$ and $q_p(m)$ for $p \in R$ lie in $\{2, \dots, m\}$, and their sets of prime factors are contained in $\{s_1, s_2\}$, $\{s_3, s_4\}$, $\{s_5, s_6\}$, and $\{p\}$ for $p \in R$, respectively. These are pairwise disjoint subsets of $\mathcal{P}(m)$, so by the Remark
+By Lemma~\ref{lem:smooth}, for $i = 1, 2, 3$ there is an integer $b_i$ with $0.9\, m < b_i \le m$ whose prime factors lie in $\{s_{2i - 1}, s_{2i}\}$. The numbers $b_1, b_2, b_3$ and $q_p(m)$ for $p \in R$ lie in $\{2, \dots, m\}$, and their sets of prime factors are contained in $\{s_1, s_2\}$, $\{s_3, s_4\}$, $\{s_5, s_6\}$, and $\{p\}$ for $p \in R$, respectively. These are pairwise disjoint subsets of $\mathcal{P}(m)$, so by the Remark
 \[
-F(m) \ge b_1 + b_2 + b_3 + \sum_{p \in R} q_p(m) > 3 \cdot 0.98\, m + \sum_{p \in R} q_p(m). \qedhere
+F(m) \ge b_1 + b_2 + b_3 + \sum_{p \in R} q_p(m) > 3 \cdot 0.9\, m + \sum_{p \in R} q_p(m). \qedhere
 \]
 \end{proof}
 
@@ -142,25 +134,25 @@ Assume, for a contradiction, that there is $X_0$ with
 \begin{equation}\label{eq:assumption}
 M_F(x) \le M_f(x) \qquad \text{for all integers } x \ge X_0.
 \end{equation}
-Put $B = 2000\, C + 1$. Fix a good integer $Y$ such that
+Put $B = 1200\, C + 1$. Fix a good integer $Y$ such that
 \begin{equation}\label{eq:Y}
-Y \ge X_0, \qquad Y \ge 2 N_0, \qquad M_f(Y) > 2 (B + 10)\, Y;
+Y \ge X_0, \qquad Y \ge N_0, \qquad M_f(Y) > 2 (B + 10)\, Y;
 \end{equation}
-such $Y$ exists by Lemma~\ref{lem:scale} applied to an integer $Y_0$ larger than $X_0$, $2 N_0$, and the threshold given by Lemma~\ref{lem:superlinear} for $\lambda = 2(B + 10)$.
+such $Y$ exists by Lemma~\ref{lem:scale} applied to an integer $Y_0$ larger than $X_0$, $N_0$, and the threshold given by Lemma~\ref{lem:superlinear} for $\lambda = 2(B + 10)$.
 
 \begin{lemma}[One jump]\label{lem:jump}
-Let $M \ge 1$ and $y$ be integers with $Y \le y \le \frac{21}{20} Y$ and $M_f(y) \ge \frac{21}{20} (M + 8)\, Y$. Then there is an integer $y'$ with
+Let $M \ge 1$ and $y$ be integers with $Y \le y \le \frac{19}{18} Y$ and $M_f(y) \ge \frac{19}{18} (M + 8)\, Y$. Then there is an integer $y'$ with
 \[
-y \le y' \le y + \frac{2 C Y}{M^2} \qquad\text{and}\qquad M_f(y') > M_f(y) + \frac{Y}{25}.
+y \le y' \le y + \frac{2 C Y}{M^2} \qquad\text{and}\qquad M_f(y') > M_f(y) + \frac{Y}{30}.
 \]
 \end{lemma}
 
 \begin{proof}
-Choose $n \le y$ with $f(n) = M_f(y)$. By Lemma~\ref{lem:double}, $n > y/2 \ge Y/2$; hence $Y < 2n$ and, by~\eqref{eq:Y}, $n > N_0$. Also $n \le \lfloor \frac{21}{20} Y \rfloor \le 2Y$.
+Choose $n \le y$ with $f(n) = M_f(y)$. Note that $n \le \lfloor \frac{19}{18} Y \rfloor \le 2Y$.
 
 \emph{Many prime factors.} Every term of $f(n)$ is at most $n$, so
 \[
-\tfrac{21}{20} (M + 8)\, Y \le f(n) \le \omega(n)\, n \le \tfrac{21}{20}\, \omega(n)\, Y,
+\tfrac{19}{18} (M + 8)\, Y \le f(n) \le \omega(n)\, n \le \tfrac{19}{18}\, \omega(n)\, Y,
 \]
 and therefore $\omega(n) \ge M + 8$.
 
@@ -170,59 +162,59 @@ and therefore $\omega(n) \ge M + 8$.
 \[
 \prod_{p \in R} p \le \frac{n}{r_a r_b} \le \frac{2Y}{M^2}, \qquad\text{so}\qquad D \le \frac{2 C Y}{M^2}.
 \]
-Let $m$ be the smallest multiple of $D$ that is larger than $n$. Then $n < m \le n + D$, and every prime in $R \cup S$ divides $m$.
+Let $m = D(\lfloor y/D \rfloor + 1)$ be the smallest multiple of $D$ that is larger than $y$. Then $n \le y < m \le y + D$, and every prime in $R \cup S$ divides $m$.
 
-\emph{Upper bound for $f(n)$.} The prime factors of $n$ are the primes in $R$, the primes $r_a$ and $r_b$, and possibly some primes in $S$. For $p \in S$, since $Y$ is good and $n \le \lfloor \frac{21}{20} Y \rfloor$, we have $q_p(n) \le q_p(\lfloor \frac{21}{20} Y \rfloor) < \frac{Y}{14} < \frac{n}{7}$. For $p \in \{r_a, r_b\}$ we use $q_p(n) \le n$, and for $p \in R$ we use $q_p(n) \le q_p(m)$. Hence
+\emph{Upper bound for $f(n)$.} The prime factors of $n$ are the primes in $R$, the primes $r_a$ and $r_b$, and possibly some primes in $S$. For $p \in S$, since $Y$ is good and $n \le y \le \lfloor \frac{19}{18} Y \rfloor$, we have $q_p(n) \le q_p(\lfloor \frac{19}{18} Y \rfloor) < \frac{Y}{9} \le \frac{y}{9}$. For $p \in \{r_a, r_b\}$ we use $q_p(n) \le n \le y$, and for $p \in R$ we use $q_p(n) \le q_p(m)$. Hence
 \[
-f(n) < \frac{6}{7}\, n + 2n + \sum_{p \in R} q_p(m) = \frac{20}{7}\, n + \sum_{p \in R} q_p(m).
+f(n) < \frac{6}{9}\, y + 2y + \sum_{p \in R} q_p(m) = \frac{8}{3}\, y + \sum_{p \in R} q_p(m).
 \]
 
-\emph{Lower bound for $F(m)$.} As $m > n > N_0$, Lemma~\ref{lem:pairs} applies to $m$ and $R$ and gives
+\emph{Lower bound for $F(m)$.} As $m > y \ge Y \ge N_0$, Lemma~\ref{lem:pairs} applies to $m$ and $R$ and gives
 \[
-F(m) > 2.94\, m + \sum_{p \in R} q_p(m) > 2.94\, n + \sum_{p \in R} q_p(m).
+F(m) > 2.7\, m + \sum_{p \in R} q_p(m) > 2.7\, y + \sum_{p \in R} q_p(m).
 \]
 
-\emph{Comparison.} Subtracting the two bounds and using $n > Y/2$,
+\emph{Comparison.} Subtracting the two bounds and using $y \ge Y$,
 \[
-F(m) - f(n) > \Bigl(2.94 - \frac{20}{7}\Bigr) n = \frac{29}{350}\, n > \frac{29}{700}\, Y > \frac{Y}{25}.
+F(m) - f(n) > \Bigl(2.7 - \frac{8}{3}\Bigr) y = \frac{y}{30} \ge \frac{Y}{30}.
 \]
 Now let $y' = y + D$. Then $y \le y' \le y + \frac{2CY}{M^2}$, $m \le y'$, and $y' \ge Y \ge X_0$, so by~\eqref{eq:assumption}
 \[
-M_f(y') \ge M_F(y') \ge F(m) > f(n) + \frac{Y}{25} = M_f(y) + \frac{Y}{25}. \qedhere
+M_f(y') \ge M_F(y') \ge F(m) > f(n) + \frac{Y}{30} = M_f(y) + \frac{Y}{30}. \qedhere
 \]
 \end{proof}
 
 \medskip
 \noindent\textbf{Iterating the jump.} We construct integers $y_0 \le y_1 \le y_2 \le \cdots$ such that for every $k \ge 0$
 \begin{equation}\label{eq:invariant}
-Y \le y_k \le Y + 54\, C\, Y \Bigl(\frac{1}{B} - \frac{1}{B + k}\Bigr)
+Y \le y_k \le Y + 64\, C\, Y \Bigl(\frac{1}{B} - \frac{1}{B + k}\Bigr)
 \qquad\text{and}\qquad
-M_f(y_k) \ge \frac{21}{20} (B + 9 + k)\, Y.
+M_f(y_k) \ge \frac{19}{18} (B + 9 + k)\, Y.
 \end{equation}
-Since $B > 1080\, C$, we have $54\, C\, Y / B < Y/20$, so all points considered below lie in the window $[Y, \frac{21}{20} Y]$.
+Since $B > 1152\, C$, we have $64\, C\, Y / B < Y/18$, so all points considered below lie in the window $[Y, \frac{19}{18} Y]$.
 
-For $k = 0$ take $y_0 = Y$; the second condition holds because $M_f(Y) > 2(B + 10)\, Y \ge \frac{21}{20}(B + 9)\, Y$.
+For $k = 0$ take $y_0 = Y$; the second condition holds because $M_f(Y) > 2(B + 10)\, Y \ge \frac{19}{18}(B + 9)\, Y$.
 
-Suppose $y_k$ satisfies~\eqref{eq:invariant}. Put $M = B + 1 + k$, so that $\frac{21}{20}(M + 8)\, Y = \frac{21}{20}(B + 9 + k)\, Y$, and apply Lemma~\ref{lem:jump} $27$ times in succession, starting from $y_k$; let $y_{k+1}$ be the last point obtained. Each application is legitimate. Indeed, $M_f$ is non-decreasing and the points increase, so the condition $M_f(y) \ge \frac{21}{20}(M + 8)\, Y$ persists. Moreover, after $j \le 27$ jumps the point is at most $y_k + j \cdot 2CY/M^2$, so the total distance travelled is at most
+Suppose $y_k$ satisfies~\eqref{eq:invariant}. Put $M = B + 1 + k$, so that $\frac{19}{18}(M + 8)\, Y = \frac{19}{18}(B + 9 + k)\, Y$, and apply Lemma~\ref{lem:jump} $32$ times in succession, starting from $y_k$; let $y_{k+1}$ be the last point obtained. Each application is legitimate. Indeed, $M_f$ is non-decreasing and the points increase, so the condition $M_f(y) \ge \frac{19}{18}(M + 8)\, Y$ persists. Moreover, after $j \le 32$ jumps the point is at most $y_k + j \cdot 2CY/M^2$, so the total distance travelled is at most
 \[
-27 \cdot \frac{2 C Y}{(B + 1 + k)^2} \le \frac{54\, C\, Y}{(B + k)(B + k + 1)} = 54\, C\, Y \Bigl(\frac{1}{B + k} - \frac{1}{B + k + 1}\Bigr),
+32 \cdot \frac{2 C Y}{(B + 1 + k)^2} \le \frac{64\, C\, Y}{(B + k)(B + k + 1)} = 64\, C\, Y \Bigl(\frac{1}{B + k} - \frac{1}{B + k + 1}\Bigr),
 \]
-so every point stays at most $Y + 54\, C\, Y \bigl(\frac{1}{B} - \frac{1}{B + k + 1}\bigr) < \frac{21}{20} Y$. In particular, $y_{k+1}$ satisfies the first condition of~\eqref{eq:invariant}. Since each jump increases $M_f$ by more than $Y/25$,
+so every point stays at most $Y + 64\, C\, Y \bigl(\frac{1}{B} - \frac{1}{B + k + 1}\bigr) < \frac{19}{18} Y$. In particular, $y_{k+1}$ satisfies the first condition of~\eqref{eq:invariant}. Since each jump increases $M_f$ by more than $Y/30$,
 \[
-M_f(y_{k + 1}) > M_f(y_k) + \frac{27}{25}\, Y \ge \frac{21}{20} (B + 9 + k)\, Y + \frac{21}{20}\, Y = \frac{21}{20} (B + 10 + k)\, Y,
+M_f(y_{k + 1}) > M_f(y_k) + \frac{32}{30}\, Y \ge \frac{19}{18} (B + 9 + k)\, Y + \frac{19}{18}\, Y = \frac{19}{18} (B + 10 + k)\, Y,
 \]
 which is the second condition for $k + 1$.
 
 \medskip
-\noindent\textbf{The contradiction.} By~\eqref{eq:invariant}, every $y_k$ is at most $\frac{21}{20} Y$, so $M_f(y_k) \le M_f(\frac{21}{20} Y)$, a number that does not depend on $k$. On the other hand, $M_f(y_k) \ge \frac{21}{20}(B + 9 + k)\, Y \ge k$ for every $k$. Taking $k > M_f(\frac{21}{20} Y)$ gives a contradiction, which proves the Theorem. \qed
+\noindent\textbf{The contradiction.} By~\eqref{eq:invariant}, every $y_k$ is at most $\frac{19}{18} Y$, so $M_f(y_k) \le M_f(\frac{19}{18} Y)$, a number that does not depend on $k$. On the other hand, $M_f(y_k) \ge \frac{19}{18}(B + 9 + k)\, Y \ge k$ for every $k$. Taking $k > M_f(\frac{19}{18} Y)$ gives a contradiction, which proves the Theorem. \qed
 
 \begin{remark}[How the constants fit together]
 The numbers in the proof are tied together as follows.
 \begin{itemize}
-\item The gain in one jump comes from $3 \cdot 0.98 = 2.94 > 2 + \frac{6}{7}$, and $\bigl(2.94 - \frac{20}{7}\bigr) \cdot \frac{1}{2} = \frac{29}{700} > \frac{1}{25}$.
-\item $27$ jumps raise $M_f$ by more than $\frac{27}{25} Y > \frac{21}{20} Y$, which is enough to raise $M$ by one.
-\item The steps have length at most $2CY/M^2$ and $\sum_M 1/M^2$ converges. Starting from $M = B + 1$ with $B > 1080\, C$, the total distance is at most $54\, C\, Y / B < Y/20$, so we never leave the window $[Y, \frac{21}{20} Y]$, on which the goodness of $Y$ controls the terms of the six special primes.
-\item The bound $s_i > 14 \cdot \frac{21}{20} \cdot 15^6$ makes the pigeonhole argument of Lemma~\ref{lem:scale} work, and $98\, s_{2i} < 100\, s_{2i-1}$ is what Lemma~\ref{lem:smooth} needs.
+\item The gain in one jump comes from $3 \cdot 0.9 = 2.7 > 2 + \frac{6}{9}$, with $2.7 - \frac{8}{3} = \frac{1}{30}$.
+\item $32$ jumps raise $M_f$ by more than $\frac{32}{30} Y > \frac{19}{18} Y$, which is enough to raise $M$ by one.
+\item The steps have length at most $2CY/M^2$ and $\sum_M 1/M^2$ converges. Starting from $M = B + 1$ with $B > 1152\, C$, the total distance is at most $64\, C\, Y / B < Y/18$, so we never leave the window $[Y, \frac{19}{18} Y]$, on which the goodness of $Y$ controls the terms of the six special primes.
+\item The bound $s_i > 9 \cdot \frac{19}{18} \cdot 10^6 = 9.5 \times 10^6$ makes the pigeonhole argument of Lemma~\ref{lem:scale} work with powers of $10$, and $9\, s_{2i} < 10\, s_{2i-1}$ is what Lemma~\ref{lem:smooth} needs.
 \end{itemize}
 The same argument is formalized in Lean in \nolinkurl{FormalConjectures/ErdosProblems/878.lean} (theorem \texttt{erdos\_878\_q3\_disproved}).
 \end{remark}
