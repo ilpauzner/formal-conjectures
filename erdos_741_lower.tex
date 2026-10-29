@@ -1,0 +1,248 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{array,longtable}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\newcommand{\digit}{\operatorname{digit}}
+\newcommand{\linForm}{\operatorname{linForm}}
+\newcommand{\hiForm}{\operatorname{hiForm}}
+\newcommand{\coeffPair}{\operatorname{coeffPair}}
+\newcommand{\coordIdx}{\operatorname{coordIdx}}
+\newcommand{\hub}{\operatorname{hub}}
+\newcommand{\hubSet}{\operatorname{hubSet}}
+\newcommand{\mkW}{\operatorname{mkW}}
+\newcommand{\baseW}{\operatorname{baseWFinset}}
+\newcommand{\lowerDensity}{\operatorname{lowerDensity}}
+
+\title[Disproof of Erd\H{o}s Problem 741 (Lower Density)]{\texorpdfstring{Disproof of the Lower-Density Variant of Erd\H{o}s Problem 741}{Disproof of the Lower-Density Variant of Erdos Problem 741}}
+\author{Ilia Pauzner}
+\date{}
+
+\begin{document}
+\maketitle
+
+For a set $S \subseteq \mathbb{N}$, write
+\[
+\lowerDensity(S) := \liminf_{n \to \infty} \frac{|S \cap [0, n)|}{n}.
+\]
+In connection with Erd\H{o}s Problem~741~\cite{Er94b,EP741}, where Erd\H{o}s asked whether $\overline{d}(A + A) > 0$ implies a decomposition $A = A_1 \sqcup A_2$ with $\overline{d}(A_1 + A_1) > 0$ and $\overline{d}(A_2 + A_2) > 0$, the corresponding lower-density question asks whether $\lowerDensity(A + A) > 0$ always allows a disjoint decomposition $A = A_1 \sqcup A_2$ with $\lowerDensity(A_1 + A_1) > 0$ and $\lowerDensity(A_2 + A_2) > 0$.
+
+\begin{theorem}
+There exists $A \subseteq \mathbb{N}$ with $\lowerDensity(A + A) > 0$ such that for every decomposition $A = A_1 \cup A_2$ with $A_1 \cap A_2 = \emptyset$, either $\lowerDensity(A_1 + A_1) = 0$ or $\lowerDensity(A_2 + A_2) = 0$.
+\end{theorem}
+
+Consequently, the lower-density variant of Erd\H{o}s Problem~741 has a negative answer.
+
+\subsection*{Correspondence with the Lean formalization}
+The proof below is the one formalized in \nolinkurl{FormalConjectures/ErdosProblems/741.lean}, step by step, with the same parameters, sets, and inequalities in pure $\mathbb{N}$ arithmetic (passing through $\mathbb{R}$ only at the initial and final $\lowerDensity$ interface). All variables below are natural numbers unless noted otherwise. The correspondences with Lean names are:
+\begingroup
+\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.38\textwidth}>{\raggedright\arraybackslash}p{0.58\textwidth}@{}}
+\hline
+This note & Lean \\
+\hline
+\endhead
+$\lowerDensity(S)$; $|S \cap [0, n)|$ & \texttt{Set.lowerDensity S}; \texttt{(S $\cap$ Iio n).ncard} \\
+Lemma~\ref{lem:ld}~(a), (b) & \texttt{lowerDensity\_pos\_of\_forall\_ge}, \texttt{exists\_eventually\_ge\_of\_lowerDensity\_pos} \\
+$\digit(B, x, t)$; $\{x < B^d : \forall s < d,\, \digit(B, x, s) < K\}$ & \texttt{digit B x t}; \texttt{boundedDigits B K d} (\texttt{boundedDigits\_spec}, \texttt{boundedDigits\_card}) \\
+no-carry digit shift; $(x + a) \bmod m = 0$ criterion; $B^n \le (B - 1)^n + n B^{n - 1}$ & \texttt{digit\_add\_mul\_pow}, \texttt{digit\_add\_pow}; \texttt{add\_mod\_eq\_zero\_iff}; \texttt{pow\_le\_pred\_pow\_add} \\
+$q_k$, $m_k$, $d_{0,k}$, $d_k$, $B_k$, $Q_k$ & \texttt{qParam k}, \texttt{mParam k}, \texttt{d0Param k}, \texttt{dParam k}, \texttt{BParam k}, \texttt{QParam k} \\
+configuration $\mathrm{cfg} = (\iota, \sigma)$; $R_k = |\mathrm{Cfg}(k)|$; $\mathrm{cfg}_r$ & \texttt{Cfg k}; \texttt{RParam k} (\texttt{RParam\_pos}); \texttt{getCfg k r} (\texttt{exists\_getCfg\_eq}) \\
+$M_k$, $L_{0,k}$, $D_{1/2,k}$, $D_{0,k}$, $P_k$, $N_{0,k}$, $N_{k,r}$ & \texttt{M\_end k}, \texttt{L0 k}, \texttt{DHalf k}, \texttt{D0 k}, \texttt{PParam k}, \texttt{N0 k}, \texttt{NScale k r} (via \texttt{stepScale}) \\
+scale inequalities and divisibilities & \texttt{scale\_chain}, \texttt{M\_end\_ge\_16}, \texttt{NScale\_strictMono}, \texttt{M\_end\_strictMono}, \texttt{PParam\_dvd\_NScale}, \texttt{QParam\_dvd\_D0}, \texttt{BParam\_dvd\_QParam} \\
+$\coordIdx_k(j, u)$; $\coeffPair_k(\mathrm{cfg}, (j, u))$; $\hiForm_k$; $\linForm_k$ & \texttt{coordIdx k j u}; \texttt{coeffPair k cfg p} (\texttt{coeffPair\_apply}); \texttt{hiForm k cfg q}; \texttt{linForm k cfg x} \\
+$Q_k$-periodicity and hub shift of $\linForm_k$ & \texttt{linForm\_add\_mul\_QParam}; \texttt{linForm\_hub\_add} \\
+$I_k$, $J_k$, $\hub_k(j, u)$, $H_k$, $\hubSet_k(\mathrm{cfg})$, $W_{k,r}$, $G_k$, $A$ & \texttt{Ik k}, \texttt{Jk k}, \texttt{hub k j u}, \texttt{Hk k}, \texttt{hubSet k cfg}, \texttt{Wk k r}, \texttt{GadgetK k}, \texttt{CounterexampleA} \\
+$G_k \subseteq [M_k, M_{k+1})$; Lemma~\ref{lem:pigeonhole} & \texttt{GadgetK\_subset\_Ico}; \texttt{exists\_cfg\_of\_partition} \\
+$\mkW_k(\mathrm{cfg}, p)$; $\baseW_k(\mathrm{cfg})$; Lemma~\ref{lem:baseW} & \texttt{mkW k cfg p} (\texttt{mkW\_props}); \texttt{baseWFinset k cfg} (\texttt{mem\_baseWFinset}); \texttt{baseWFinset\_card\_bound} \\
+Lemma~\ref{lem:scale-lb}; Lemma~\ref{lem:bridge-lb}; Lemma~\ref{lem:ld-pos} & \texttt{sumset\_scale\_bound}; \texttt{sumset\_bridge\_J\_I\_bound}; \texttt{lowerDensity\_CounterexampleA\_add\_pos} \\
+Lemma~\ref{lem:cases}; Lemma~\ref{lem:upper}; Theorem & \texttt{mem\_target\_lt\_NScale\_cases}; \texttt{target\_sumset\_ncard\_bound}; \texttt{erdos\_741.variants.lower} \\
+\hline
+\end{longtable}
+\endgroup
+
+\begin{lemma}\label{lem:ld}
+Let $S \subseteq \mathbb{N}$.
+\begin{enumerate}
+\item[(a)] If $c \in \mathbb{R}$ satisfies $c > 0$ and there is $n_0 \in \mathbb{N}$ such that $c n \le |S \cap [0, n)|$ for all $n \ge n_0$, then $0 < \lowerDensity(S)$.
+\item[(b)] If $0 < \lowerDensity(S)$, then there exist $K, N_0 \in \mathbb{N}$ such that $n \le K \, |S \cap [0, n)|$ for all $n \ge N_0$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Part~(a) is immediate from the definition of $\liminf$, since $|S \cap [0, n)| / n \le 1$ is bounded above and eventually $\ge c$ for $n \ge \max(n_0, 1)$. For~(b), pick $K \in \mathbb{N}$ with $1 / \lowerDensity(S) < K$; then $1 / K < \lowerDensity(S)$, so $|S \cap [0, n)| / n > 1 / K$ for all sufficiently large $n \ge 1$.
+\end{proof}
+
+\subsection*{\texorpdfstring{Base-$B$ digits and bounded-digit fibers}{Base-B digits and bounded-digit fibers}}
+For $B, x, t \in \mathbb{N}$, define $\digit(B, x, t) := \lfloor x / B^t \rfloor \bmod B$.
+\begin{itemize}
+\item If $B > 0$, $B^d \mid z$, and $t < d$, then $\digit(B, z + w, t) = \digit(B, w, t)$.
+\item If $B > 0$ and $\digit(B, w, t) + 1 < B$, then adding $B^t$ to $w$ produces no carry out of digit $t$: $\lfloor (w + B^t) / B^{t+1} \rfloor = \lfloor w / B^{t+1} \rfloor$, and for every $t' \in \mathbb{N}$,
+\[
+\digit(B, w + B^t, t') = \digit(B, w, t') + \mathbf{1}_{t' = t}.
+\]
+\item For $K \le B$ and $d \in \mathbb{N}$, recursively define $\mathrm{BD}(B, K, 0) := \{0\}$ and $\mathrm{BD}(B, K, d + 1) := \{q B + r : q \in \mathrm{BD}(B, K, d),\, r < K\}$. By induction on $d$, every $x \in \mathrm{BD}(B, K, d)$ satisfies $x < B^d$ and $\digit(B, x, s) < K$ for all $s < d$, and $|\mathrm{BD}(B, K, d)| = K^d$.
+\item For $B \ge 1$ and $n \in \mathbb{N}$, induction on $n$ gives $B^n \le (B - 1)^n + n B^{n - 1}$.
+\end{itemize}
+
+\subsection*{Parameters, configurations, scales, and linear forms}
+For each stage $k \in \mathbb{N}$, put
+\[
+q_k := k + 2, \quad m_k := 2 q_k = 2k + 4, \quad d_{0,k} := 2 m_k^2, \quad d_k := d_{0,k} + 1, \quad B_k := 8 m_k^3, \quad Q_k := B_k^{d_k}.
+\]
+Let $\mathrm{Cfg}(k)$ be the finite type of pairs $\mathrm{cfg} = (\iota, \sigma)$ consisting of an injection $\iota : \{0, \dots, q_k - 1\} \hookrightarrow \{0, \dots, m_k - 1\}$ and, for each $i < q_k$, an injection $\sigma_i : \{0, \dots, m_k - 1\} \hookrightarrow \{0, \dots, 2 m_k - 1\}$. Set $R_k := |\mathrm{Cfg}(k)| > 0$ and enumerate $\mathrm{Cfg}(k) = \{\mathrm{cfg}_0, \dots, \mathrm{cfg}_{R_k - 1}\}$.
+
+Define the stage boundaries $M_k$ recursively by $M_0 := 16$ and, given $M_k$,
+\[
+L_{0,k} := 4 M_k Q_k, \qquad D_{1/2,k} := 2 m_k L_{0,k}, \qquad D_{0,k} := 2 D_{1/2,k} = 4 m_k L_{0,k},
+\]
+\[
+P_k := 2 m_k D_{0,k}, \qquad N_{0,k} := 10 m_k P_k = 80 m_k^3 L_{0,k}, \qquad N_{k,r} := (4 m_k)^r N_{0,k},
+\]
+and $M_{k+1} := N_{k, R_k}$. Since $m_k \ge 4$ and $M_k \ge 16$, we have $B_k \mid Q_k \mid L_{0,k} \mid D_{1/2,k} \mid D_{0,k} \mid P_k \mid N_{k,r}$ and
+\[
+4 M_k \le L_{0,k}, \;\; Q_k < L_{0,k}, \;\; 2 L_{0,k} < D_{1/2,k}, \;\; (m_k + 1) D_{0,k} < P_k, \;\; 40 P_k \le N_{0,k} \le N_{k,r} < N_{k,r+1}.
+\]
+In particular, $M_0 < M_1 < M_2 < \cdots$, so $k \le M_k$ for every $k$.
+
+Fix the canonical bijection $\phi_k : \{0, \dots, m_k - 1\} \times \{0, \dots, 2 m_k - 1\} \xrightarrow{\sim} \{0, \dots, d_{0,k} - 1\}$ (\texttt{finProdFinEquiv}), and put $\coordIdx_k(j, u) := \phi_k(j, u) + 1 \in \{1, \dots, d_{0,k}\}$. For $\mathrm{cfg} = (\iota, \sigma) \in \mathrm{Cfg}(k)$, define $\coeffPair_k(\mathrm{cfg}, (j, u)) := v$ if $(j, u) = (\iota(i), \sigma_i(v))$ for some (necessarily unique) $(i, v)$, and $0$ otherwise. Set
+\[
+\hiForm_k(\mathrm{cfg}, q) := \sum_{j < m_k} \sum_{u < 2 m_k} \coeffPair_k(\mathrm{cfg}, (j, u)) \, \digit(B_k, q, \phi_k(j, u)),
+\]
+\[
+\linForm_k(\mathrm{cfg}, x) := (x \bmod B_k) + \hiForm_k(\mathrm{cfg}, \lfloor x / B_k \rfloor).
+\]
+Because $Q_k = B_k^{d_{0,k}} B_k$, if $Q_k \mid z$ then $(z + w) \bmod B_k = w \bmod B_k$ and, for every $s < d_{0,k}$, $\digit(B_k, \lfloor (z + w) / B_k \rfloor, s) = \digit(B_k, \lfloor w / B_k \rfloor, s)$, whence $\linForm_k(\mathrm{cfg}, z + w) = \linForm_k(\mathrm{cfg}, w)$.
+
+\subsection*{\texorpdfstring{The counterexample set $A$}{The counterexample set A}}
+For each $k \in \mathbb{N}$, define:
+\begin{align*}
+I_k &:= [M_k, L_{0,k}), \\
+J_k &:= \{q L_{0,k} : 1 \le q < 80 m_k^3\}, \\
+\hub_k(j, u) &:= (j + 1) D_{0,k} + B_k^{\coordIdx_k(j, u)}, \qquad H_k := \{\hub_k(j, u) : j < m_k,\, u < 2 m_k\}, \\
+\hubSet_k(\mathrm{cfg}) &:= \{\hub_k(\iota(i), \sigma_i(v)) : i < q_k,\, v < m_k\}, \\
+W_{k,r} &:= \bigl\{w \in [N_{k,r}, N_{k,r+1}) : w \bmod P_k < D_{1/2,k},\; \linForm_k(\mathrm{cfg}_r, w) \bmod m_k = 0, \\
+&\qquad\qquad\qquad \forall s < d_{0,k},\, \digit(B_k, \lfloor w / B_k \rfloor, s) < B_k - 1\bigr\} \qquad (r < R_k), \\
+G_k &:= I_k \cup J_k \cup H_k \cup \bigcup_{r < R_k} W_{k,r}, \qquad A := [0, 16) \cup \bigcup_{k \in \mathbb{N}} G_k.
+\end{align*}
+Since $B_k^{\coordIdx_k(j, u)} \le B_k^{d_{0,k}} < Q_k < D_{0,k}$, every $\hub_k(j, u)$ satisfies $D_{0,k} \le \hub_k(j, u) < (m_k + 1) D_{0,k} < P_k < N_{0,k}$, and hence $G_k \subseteq [M_k, M_{k+1})$. Moreover, if $\digit(B_k, \lfloor w / B_k \rfloor, s) < B_k - 1$ for all $s < d_{0,k}$, writing $\hub_k(j, u) + w = (j + 1) D_{0,k} + (w + B_k^{\phi_k(j, u)} B_k)$ and using $Q_k \mid D_{0,k}$ together with the no-carry digit shift at $s_0 = \phi_k(j, u)$ gives
+\begin{equation}\label{eq:hub-shift}
+\linForm_k(\mathrm{cfg}, \hub_k(j, u) + w) = \linForm_k(\mathrm{cfg}, w) + \coeffPair_k(\mathrm{cfg}, (j, u)).
+\end{equation}
+
+\begin{lemma}\label{lem:pigeonhole}
+If $A = A_1 \cup A_2$, then for every $k \in \mathbb{N}$ there exists $r < R_k$ such that $\hubSet_k(\mathrm{cfg}_r) \subseteq A_1$ or $\hubSet_k(\mathrm{cfg}_r) \subseteq A_2$.
+\end{lemma}
+
+\begin{proof}
+For each $j < m_k$, the $2 m_k$ elements $\{\hub_k(j, u) : u < 2 m_k\} \subseteq H_k \subseteq A = A_1 \cup A_2$ satisfy $|\{u : \hub_k(j, u) \in A_1\}| \ge m_k$ or $|\{u : \hub_k(j, u) \in A_2\}| \ge m_k$. Since $m_k = 2 q_k$, at least $q_k$ indices $j < m_k$ satisfy the first alternative, or at least $q_k$ satisfy the second. Taking the order-preserving embeddings of a $q_k$-element subset of blocks and of an $m_k$-element subset of slots in each chosen block yields $\mathrm{cfg} \in \mathrm{Cfg}(k)$ with $\hubSet_k(\mathrm{cfg}) \subseteq A_1$ or $\subseteq A_2$.
+\end{proof}
+
+\begin{lemma}\label{lem:baseW}
+For $k \in \mathbb{N}$, $\mathrm{cfg} \in \mathrm{Cfg}(k)$, and $p = (p_1, p_2) \in \mathbb{N}^2$, define
+\[
+\mkW_k(\mathrm{cfg}, p) := p_1 B_k + p_2 m_k + \bigl((m_k - \hiForm_k(\mathrm{cfg}, p_1) \bmod m_k) \bmod m_k\bigr),
+\]
+and let $\baseW_k(\mathrm{cfg})$ be the image of $\mathrm{BD}(B_k, B_k - 1, d_{0,k}) \times \{0, \dots, 8 m_k^2 - 1\}$ under $\mkW_k(\mathrm{cfg}, \cdot)$. Every $x \in \baseW_k(\mathrm{cfg})$ satisfies $x < Q_k$, $\digit(B_k, \lfloor x / B_k \rfloor, s) < B_k - 1$ for all $s < d_{0,k}$, and $\linForm_k(\mathrm{cfg}, x) \bmod m_k = 0$; moreover,
+\[
+3 Q_k \le 4 m_k \, |\baseW_k(\mathrm{cfg})|.
+\]
+\end{lemma}
+
+\begin{proof}
+For $p_2 < 8 m_k^2$, the low part $\mathrm{lo} := p_2 m_k + ((m_k - \hiForm_k(\mathrm{cfg}, p_1) \bmod m_k) \bmod m_k)$ is $< 8 m_k^3 = B_k$, so $\lfloor \mkW_k(\mathrm{cfg}, p) / B_k \rfloor = p_1$ and $\mkW_k(\mathrm{cfg}, p) \bmod B_k = \mathrm{lo}$. This gives the three membership properties and shows $\mkW_k(\mathrm{cfg}, \cdot)$ is injective on the product, so $|\baseW_k(\mathrm{cfg})| = (B_k - 1)^{d_{0,k}} \cdot 8 m_k^2$. Since $4 d_{0,k} B_k^{d_{0,k} - 1} = 8 m_k^2 B_k^{d_{0,k} - 1} \le B_k^{d_{0,k}}$, the inequality $B_k^{d_{0,k}} \le (B_k - 1)^{d_{0,k}} + d_{0,k} B_k^{d_{0,k} - 1}$ yields $3 B_k^{d_{0,k}} \le 4 (B_k - 1)^{d_{0,k}}$. Multiplying by $B_k = 8 m_k^3$ gives $3 Q_k \le 4 m_k \, |\baseW_k(\mathrm{cfg})|$.
+\end{proof}
+
+\begin{lemma}\label{lem:scale-lb}
+If $r < R_k$ and $4 N_{k,r} \le n \le N_{k,r+1}$, then $3 n \le 64 \, |(A + A) \cap [0, n)|$.
+\end{lemma}
+
+\begin{proof}
+Let $\mathrm{cfg} = (\iota, \sigma) := \mathrm{cfg}_r$, $p_{\mathrm{start}} := N_{k,r} / P_k \ge 40$, $Q_n := \lfloor n / P_k \rfloor \ge 4 p_{\mathrm{start}} \ge 160$, $\mathrm{numP} := Q_n - p_{\mathrm{start}} - 1$, and $\mathrm{numB} := 8 m_k M_k$ (so $D_{1/2,k} = \mathrm{numB} \cdot Q_k$). For $(i, v) \in \{0, \dots, q_k - 1\} \times \{0, \dots, m_k - 1\}$, $t < \mathrm{numP}$, $b < \mathrm{numB}$, and $x \in \baseW_k(\mathrm{cfg})$, put $w(t, b, x) := (p_{\mathrm{start}} + t) P_k + b Q_k + x$ and
+\[
+\Phi(i, v, t, b, x) := \hub_k(\iota(i), \sigma_i(v)) + w(t, b, x).
+\]
+Since $Q_k \mid P_k$, we have $w(t, b, x) \in W_{k,r}$, and $\Phi(i, v, t, b, x) < (p_{\mathrm{start}} + t + 2) P_k \le Q_n P_k \le n$, so $\Phi$ maps into $(A + A) \cap [0, n)$. Moreover, $\Phi$ is injective: writing $z = \Phi(i, v, t, b, x)$ and $y = b Q_k + x < D_{1/2,k}$, we have $B_k^{\coordIdx_k(\iota(i), \sigma_i(v))} + y < Q_k + D_{1/2,k} < D_{0,k}$ and $(\iota(i) + 1) D_{0,k} + D_{0,k} \le (m_k + 1) D_{0,k} < P_k$, so $\lfloor z / P_k \rfloor = p_{\mathrm{start}} + t$ recovers $t$, and $\lfloor (z \bmod P_k) / D_{0,k} \rfloor = \iota(i) + 1$ recovers $i$ by injectivity of $\iota$. Next,~\eqref{eq:hub-shift} gives $\linForm_k(\mathrm{cfg}, z) \bmod m_k = v$, recovering $v$; subtracting $\hub_k(\iota(i), \sigma_i(v)) + (p_{\mathrm{start}} + t) P_k$ recovers $b Q_k + x$, hence $b = \lfloor (b Q_k + x) / Q_k \rfloor$ and $x$. Thus the image $F$ has size $q_k m_k \, \mathrm{numP} \, \mathrm{numB} \, |\baseW_k(\mathrm{cfg})|$. Since $Q_n + 1 \le 2 \, \mathrm{numP}$ and $P_k = 32 m_k^3 M_k Q_k$, Lemma~\ref{lem:baseW} gives
+\[
+3 n \le 3 (Q_n + 1) P_k \le 6 \, \mathrm{numP} \, P_k = 64 m_k^2 \, \mathrm{numP} \, M_k (3 Q_k) \le 64 \, |F| \le 64 \, |(A + A) \cap [0, n)|. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}\label{lem:bridge-lb}
+If $2 L_{0,k} \le n \le N_{0,k}$, then $3 n \le 64 \, |(A + A) \cap [0, n)|$.
+\end{lemma}
+
+\begin{proof}
+Set $Q_L := \lfloor n / L_{0,k} \rfloor$; then $2 \le Q_L \le 80 m_k^3$. For $1 \le q < Q_L$ and $x \in [M_k, L_{0,k})$, we have $q L_{0,k} \in J_k \subseteq A$, $x \in I_k \subseteq A$, and $q L_{0,k} + x < Q_L L_{0,k} \le n$. The map $(q, x) \mapsto q L_{0,k} + x$ is injective because $x < L_{0,k}$, producing $(Q_L - 1)(L_{0,k} - M_k)$ sums in $(A + A) \cap [0, n)$. Since $Q_L + 1 \le 3(Q_L - 1)$ and $3 L_{0,k} \le 4(L_{0,k} - M_k)$, we obtain $3 n \le 3(Q_L + 1) L_{0,k} \le 12(Q_L - 1)(L_{0,k} - M_k) \le 64 \, |(A + A) \cap [0, n)|$.
+\end{proof}
+
+\begin{lemma}\label{lem:ld-pos}
+$\lowerDensity(A + A) > 0$.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:ld}~(a) with $c = 3 / 256$ and $n_0 = 16$, it suffices to show $3 n \le 256 \, |(A + A) \cap [0, n)|$ for every $n \ge 16$. Choose $k$ with $M_k \le n < M_{k+1}$. Note that $0 \in [0, 16) \subseteq A$.
+\begin{itemize}
+\item If $n < 4 M_k$: for $k = 0$, $n < 64$ and $0 = 0 + 0 \in (A + A) \cap [0, n)$, so $3 n < 192 < 256$. For $k = k' + 1$, $M_k = N_{k', R_{k'} - 1 + 1} \ge 4 N_{k', R_{k'} - 1}$, so Lemma~\ref{lem:scale-lb} at $(k', R_{k'} - 1)$ gives $3 M_k \le 64 \, |(A + A) \cap [0, M_k)|$, and monotonicity gives $3 n < 12 M_k \le 256 \, |(A + A) \cap [0, n)|$.
+\item If $4 M_k \le n \le 2 L_{0,k}$: the sums $0 + z$ for $z \in [M_k, \min(n, L_{0,k})) \subseteq I_k$ lie in $(A + A) \cap [0, n)$, giving $\min(n, L_{0,k}) - M_k$ elements; since $4 M_k \le L_{0,k}$, we have $3 n \le 256(\min(n, L_{0,k}) - M_k)$.
+\item If $2 L_{0,k} < n \le N_{0,k}$: Lemma~\ref{lem:bridge-lb} gives $3 n \le 64 \, |(A + A) \cap [0, n)|$.
+\item If $N_{0,k} < n < M_{k+1} = N_{k, R_k}$: pick $r < R_k$ with $N_{k,r} \le n < N_{k,r+1}$. If $4 N_{k,r} \le n$, Lemma~\ref{lem:scale-lb} gives $3 n \le 64 \, |(A + A) \cap [0, n)|$. If $n < 4 N_{k,r}$, then $3 N_{k,r} \le 64 \, |(A + A) \cap [0, N_{k,r})|$ holds by Lemma~\ref{lem:bridge-lb} (when $r = 0$) or Lemma~\ref{lem:scale-lb} at $r - 1$ (when $r \ge 1$), so monotonicity yields $3 n < 12 N_{k,r} \le 256 \, |(A + A) \cap [0, n)|$. \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{lemma}\label{lem:cases}
+Suppose $A_t \subseteq A$, $A_t \cap A_o = \emptyset$, $r < R_k$, and $\hubSet_k(\mathrm{cfg}_r) \subseteq A_o$. Every $x \in A_t$ with $x < N_{k,r+1}$ satisfies either $x \in W_{k,r}$, or $x < N_{k,r}$ together with one of:
+\begin{enumerate}
+\item[(i)] $x \bmod P_k < D_{1/2,k}$, \quad (ii) $x \in J_k$, \quad or \quad (iii) $x \in H_k \setminus \hubSet_k(\mathrm{cfg}_r)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Since $G_{k'} \subseteq [M_{k'}, M_{k'+1})$ and $N_{k,r+1} \le M_{k+1}$, no element of $G_{k'}$ with $k' > k$ is $< N_{k,r+1}$. Elements of $[0, 16)$, of $G_{k'}$ with $k' < k$, and of $I_k$ are all $< L_{0,k} < D_{1/2,k} < P_k < N_{k,r}$, giving~(i). On stage $k$, elements of $J_k$ satisfy $x < N_{0,k} \le N_{k,r}$, giving~(ii); elements of $H_k \cap A_t$ satisfy $x < P_k < N_{k,r}$ and cannot lie in $\hubSet_k(\mathrm{cfg}_r) \subseteq A_o$ since $A_t \cap A_o = \emptyset$, giving~(iii); finally, for $x \in W_{k,u}$, $u > r$ is impossible as $x < N_{k,r+1} \le N_{k,u}$, $u = r$ gives $x \in W_{k,r}$, and $u < r$ gives $x < N_{k,u+1} \le N_{k,r}$ and $x \bmod P_k < D_{1/2,k}$, which is~(i).
+\end{proof}
+
+\begin{lemma}\label{lem:upper}
+Under the hypotheses of Lemma~\ref{lem:cases}, let $N := N_{k,r+1}$. Then
+\[
+m_k \, |(A_t + A_t) \cap [0, N)| \le 2 N.
+\]
+\end{lemma}
+
+\begin{proof}
+Put $\mathrm{cfg} := \mathrm{cfg}_r$. Define three finite sets:
+\begin{align*}
+E_1 &:= [0, 2 N_{k,r}), \\
+E_2 &:= \{p_1 P_k + p_2 : p_1 < N / P_k,\, p_2 < D_{0,k}\}, \\
+E_3 &:= \{\mkW_k(\mathrm{cfg}, (q, u)) : q < N / B_k,\, u < 8 m_k^2\}.
+\end{align*}
+Let $z = x + y < N$ with $x, y \in A_t$, and apply Lemma~\ref{lem:cases} to $x$ and $y$.
+\begin{itemize}
+\item If $x < N_{k,r}$ and $y < N_{k,r}$, then $z < 2 N_{k,r}$, so $z \in E_1$.
+\item If $x \bmod P_k < D_{1/2,k}$ and $y \bmod P_k < D_{1/2,k}$ (covering $x, y \in W_{k,r}$ as well as case~(i) paired with $W_{k,r}$), then $z \bmod P_k < 2 D_{1/2,k} = D_{0,k}$, and $P_k \mid N$ implies $\lfloor z / P_k \rfloor < N / P_k$, so $z \in E_2$.
+\item In the remaining mixed cases, one summand (say $y$) lies in $W_{k,r}$ and the other ($x$) lies in $J_k$ or $H_k \setminus \hubSet_k(\mathrm{cfg})$. If $x = q L_{0,k} \in J_k$, then $Q_k \mid x$, so $\linForm_k(\mathrm{cfg}, x + y) = \linForm_k(\mathrm{cfg}, y)$. If $x = \hub_k(j, u) \in H_k \setminus \hubSet_k(\mathrm{cfg})$, then $(j, u)$ is not in the image of $\mathrm{cfg}$, so $\coeffPair_k(\mathrm{cfg}, (j, u)) = 0$, and~\eqref{eq:hub-shift} gives $\linForm_k(\mathrm{cfg}, x + y) = \linForm_k(\mathrm{cfg}, y)$. In both cases $\linForm_k(\mathrm{cfg}, z) \bmod m_k = 0$. Writing $q = \lfloor z / B_k \rfloor < N / B_k$ and $\mathrm{lo} = z \bmod B_k < B_k = 8 m_k^3$, the congruence $(\mathrm{lo} + \hiForm_k(\mathrm{cfg}, q)) \bmod m_k = 0$ forces $\mathrm{lo} \bmod m_k = (m_k - \hiForm_k(\mathrm{cfg}, q) \bmod m_k) \bmod m_k$, so $z = \mkW_k(\mathrm{cfg}, (q, \lfloor \mathrm{lo} / m_k \rfloor)) \in E_3$.
+\end{itemize}
+Hence $(A_t + A_t) \cap [0, N) \subseteq E_1 \cup E_2 \cup E_3$. Since $2 m_k |E_1| = 4 m_k N_{k,r} = N$, $2 m_k |E_2| \le 2 m_k (N / P_k) D_{0,k} = N$, and $m_k |E_3| \le m_k (N / B_k)(8 m_k^2) = N$, we obtain $2 m_k \, |(A_t + A_t) \cap [0, N)| \le 2 m_k(|E_1| + |E_2| + |E_3|) \le 4 N$, so $m_k \, |(A_t + A_t) \cap [0, N)| \le 2 N$.
+\end{proof}
+
+\begin{proof}[Proof of the Theorem]
+By Lemma~\ref{lem:ld-pos}, $\lowerDensity(A + A) > 0$. Suppose for contradiction that $A = A_1 \cup A_2$ with $A_1 \cap A_2 = \emptyset$, $\lowerDensity(A_1 + A_1) > 0$, and $\lowerDensity(A_2 + A_2) > 0$. Lemma~\ref{lem:ld}~(b) gives $(K_1, N_1)$ and $(K_2, N_2)$ with $n \le K_i \, |(A_i + A_i) \cap [0, n)|$ for all $n \ge N_i$ ($i = 1, 2$). Set
+\[
+k := \max\bigl(\max(N_1, N_2),\, \max(K_1, K_2)\bigr).
+\]
+By Lemma~\ref{lem:pigeonhole}, there is $r < R_k$ such that $\hubSet_k(\mathrm{cfg}_r) \subseteq A_1$ or $\hubSet_k(\mathrm{cfg}_r) \subseteq A_2$. Put $(A_t, A_o, K_t, N_t) := (A_2, A_1, K_2, N_2)$ in the first case and $(A_1, A_2, K_1, N_1)$ in the second, and set $N := N_{k,r+1}$ and $c := |(A_t + A_t) \cap [0, N)|$. Since $N_t \le k \le M_k < N_{0,k} \le N$, we have $N \le K_t c$ (which with $N > 0$ forces $c > 0$), while Lemma~\ref{lem:upper} gives $m_k c \le 2 N$. Because $K_t \le k$ and $m_k = 2(k + 2)$, we have $2 K_t + 1 \le m_k$, so $(2 K_t + 1) c \le m_k c \le 2 N \le 2 K_t c$, contradicting $c > 0$.
+\end{proof}
+
+\begin{thebibliography}{9}
+\bibitem{Er94b}
+P.~Erd\H{o}s, \emph{Some problems in number theory, combinatorics and combinatorial geometry}, Math. Pannon. \textbf{5} (1994), 261--269.
+
+\bibitem{EP741}
+\emph{Erd\H{o}s Problem \#741}, \url{https://www.erdosproblems.com/741}.
+\end{thebibliography}
+
+\end{document}

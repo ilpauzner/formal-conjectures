@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\ld}{\underline{d}}
+\newcommand{\ud}{\overline{d}}
+
+\title[Erd\H{o}s Problem 741 (Lower-Density Variant)]{\texorpdfstring{Erd\H{o}s Problem 741 (Lower-Density Variant):\\ Positive Lower Density of $A + A$ Does Not Pass to a Partition}{Erdos Problem 741 (Lower-Density Variant): Positive Lower Density of A + A Does Not Pass to a Partition}}
+\author{Ilia Pauzner}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The problem}
+
+For a set $S \subseteq \mathbb{N} = \{0, 1, 2, \dots\}$, write
+\[
+\ld(S) = \liminf_{n \to \infty} \frac{|S \cap [0, n)|}{n}
+\qquad\text{and}\qquad
+\ud(S) = \limsup_{n \to \infty} \frac{|S \cap [0, n)|}{n}
+\]
+for its lower and upper asymptotic densities, and write $A + A = \{a + b : a, b \in A\}$ for the sumset. In~\cite{Er94b} (see~\cite{EP741}), Erd\H{o}s asked whether every set $A \subseteq \mathbb{N}$ with $\ud(A + A) > 0$ can be partitioned as $A = A_1 \sqcup A_2$ so that $\ud(A_1 + A_1) > 0$ and $\ud(A_2 + A_2) > 0$. The formal-conjectures benchmark~\cite{FC741} records the companion question for lower density: if $\ld(A + A) > 0$, can one always partition $A = A_1 \sqcup A_2$ so that $\ld(A_1 + A_1) > 0$ and $\ld(A_2 + A_2) > 0$? The answer is no.
+
+\begin{theorem}
+There exists a set $A \subseteq \mathbb{N}$ with $\ld(A + A) \ge 3 / 256 > 0$ such that for every disjoint decomposition $A = A_1 \sqcup A_2$,
+\[
+\min\bigl(\ld(A_1 + A_1),\, \ld(A_2 + A_2)\bigr) = 0.
+\]
+\end{theorem}
+
+\section{Idea of the construction}
+
+Why does the upper-density problem behave differently from the lower-density one? To have $\ud(A_i + A_i) > 0$, each piece $A_i$ need only fill a constant fraction of \emph{some} infinitely many prefixes $[0, N)$, so $A_1$ and $A_2$ can take turns across alternating scales. By contrast, $\ld(A_1 + A_1) > 0$ and $\ld(A_2 + A_2) > 0$ require \emph{both} sumsets to have density bounded away from zero at \emph{every} sufficiently large prefix $[0, N)$ simultaneously.
+
+We exploit this by building $A$ as a union of disjoint stages $G_k \subseteq [M_k, M_{k+1})$ ($k = 0, 1, 2, \dots$) with a parameter $m = m_k = 2k + 4 \to \infty$. At stage $k$:
+\begin{itemize}
+\item A finite \emph{hub} set $H_k$ of $2 m^2$ elements is organized into $m$ blocks of $2 m$ elements each. Any $2$-coloring $A = A_1 \sqcup A_2$ must give one color (say $A_1$) at least $m$ elements in at least $q = m/2$ blocks. Such a selection of $q \times m$ hubs is called a \emph{configuration} $\gamma$.
+\item There are finitely many ($R_k$) configurations $\gamma_0, \dots, \gamma_{R_k - 1}$, and we allocate each $\gamma_r$ its own geometric scale window $[N_{k,r}, N_{k,r+1})$ with $N_{k,r+1} = 4 m N_{k,r}$.
+\item On $[N_{k,r}, N_{k,r+1})$, we place a sparse \emph{spoke} set $W_{k,r}$ constrained by two independent conditions: every $w \in W_{k,r}$ lies in a short residue window $w \bmod P_k < D_{0,k} / 2$ (occupying a $1/(4m)$ fraction of residues modulo $P_k$), and satisfies a base-$B_k$ linear congruence $\Lambda_{\gamma_r}(w) \equiv 0 \pmod{m}$ whose coefficients on digit positions are tuned to $\gamma_r$.
+\item Adding the $q m = m^2 / 2$ hubs of $\gamma_r$ to $W_{k,r}$ shifts both the coarse residue modulo $P_k$ (into $q$ distinct $D_{0,k}$-slots) and the linear form $\Lambda_{\gamma_r} \bmod m$ (through all $m$ residues $0, \dots, m - 1$) without base-$B_k$ carries, expanding $W_{k,r}$ injectively to cover a bounded-below fraction of $[N_{k,r}, N_{k,r+1})$. Auxiliary intervals $I_k$ and grids $J_k$ bridge the transition between $M_k$ and $N_{k,0}$, keeping $|(A + A) \cap [0, n)| \ge \frac{3}{256} n$ for \emph{every} $n \ge 16$.
+\item However, at the specific scale $N = N_{k,r+1}$ corresponding to a monochromatic configuration $\gamma_r \subseteq A_1$, the \emph{other} piece $A_2$ contains \emph{none} of the hubs of $\gamma_r$. Every remaining hub in $H_k \cap A_2$ has coefficient $0$ in $\Lambda_{\gamma_r}$, so $(A_2 + A_2) \cap [0, N)$ is trapped inside the union of $[0, 2 N_{k,r})$ (density $1/(2m)$), the small modulo-$P_k$ window $< D_{0,k}$ (density $1/(2m)$), and the kernel $\Lambda_{\gamma_r}(z) \equiv 0 \pmod{m}$ (density $1/m$). Thus
+\[
+|(A_2 + A_2) \cap [0, N_{k,r+1})| \le \frac{2}{m_k} \, N_{k,r+1},
+\]
+forcing $\min\bigl(\ld(A_1 + A_1), \ld(A_2 + A_2)\bigr) \le \lim_{k \to \infty} 2 / m_k = 0$.
+\end{itemize}
+
+\section{\texorpdfstring{Base-$B$ linear-form gadget}{Base-B linear-form gadget}}
+
+For integers $B \ge 2$, $x \ge 0$, and $t \ge 0$, let $\mathrm{dig}_B(x, t) = \lfloor x / B^t \rfloor \bmod B$ be the $t$-th base-$B$ digit of $x$. Two elementary properties govern carry-free digit shifts:
+\begin{enumerate}
+\item If $B^d \mid z$ and $t < d$, then $\mathrm{dig}_B(z + w, t) = \mathrm{dig}_B(w, t)$.
+\item If $\mathrm{dig}_B(w, t) < B - 1$, then adding $B^t$ to $w$ produces no carry into position $t + 1$, so $\mathrm{dig}_B(w + B^t, t') = \mathrm{dig}_B(w, t') + \mathbf{1}_{t' = t}$ for every $t' \ge 0$.
+\end{enumerate}
+
+Fix a stage $k \ge 0$ and set
+\[
+q = k + 2, \quad m = 2q = 2k + 4 \ge 4, \quad d_0 = 2 m^2, \quad d = d_0 + 1, \quad B = 8 m^3, \quad Q = B^d.
+\]
+Index the $d_0 = m \cdot (2m)$ pairs $(j, u) \in \{0, \dots, m - 1\} \times \{0, \dots, 2m - 1\}$ by a bijection $\phi : \{0, \dots, m - 1\} \times \{0, \dots, 2m - 1\} \xrightarrow{\sim} \{0, \dots, d_0 - 1\}$.
+
+A \emph{configuration} $\gamma = (\iota, \sigma)$ consists of an injective map $\iota : \{0, \dots, q - 1\} \hookrightarrow \{0, \dots, m - 1\}$ together with, for each $i < q$, an injective map $\sigma_i : \{0, \dots, m - 1\} \hookrightarrow \{0, \dots, 2m - 1\}$. There are $R_k \ge 1$ such configurations; enumerate them as $\gamma_0, \dots, \gamma_{R_k - 1}$.
+
+For a configuration $\gamma = (\iota, \sigma)$, assign each pair $(j, u)$ the weight
+\[
+c_\gamma(j, u) =
+\begin{cases}
+v & \text{if } (j, u) = (\iota(i), \sigma_i(v)) \text{ for some } i < q \text{ and } v < m,\\
+0 & \text{otherwise}
+\end{cases}
+\]
+(well-defined by injectivity of $\iota$ and $\sigma_i$), and define $\Lambda_\gamma : \mathbb{N} \to \mathbb{N}$ by
+\[
+\Lambda_\gamma(x) = (x \bmod B) + \sum_{j < m} \sum_{u < 2m} c_\gamma(j, u)\, \mathrm{dig}_B\bigl(\lfloor x / B \rfloor, \phi(j, u)\bigr).
+\]
+Notice that $\Lambda_\gamma$ depends only on $x \bmod B$ and the first $d_0$ base-$B$ digits of $\lfloor x / B \rfloor$, i.e.\ on $x \bmod B^{d_0 + 1} = x \bmod Q$. Hence $\Lambda_\gamma(z + w) = \Lambda_\gamma(w)$ whenever $Q \mid z$.
+
+\begin{lemma}[Density of carry-safe kernel elements]\label{lem:kernel}
+Let $S_\gamma$ be the set of integers $x \in [0, Q)$ such that $\mathrm{dig}_B(\lfloor x / B \rfloor, s) < B - 1$ for all $s < d_0$ and $\Lambda_\gamma(x) \equiv 0 \pmod{m}$. Then
+\[
+|S_\gamma| \ge \frac{3 Q}{4 m}.
+\]
+\end{lemma}
+
+\begin{proof}
+There are $(B - 1)^{d_0}$ choices of $p_1 \in [0, B^{d_0})$ whose digits in positions $0, \dots, d_0 - 1$ are all $< B - 1$. For each such $p_1$ and each $p_2 \in \{0, \dots, 8 m^2 - 1\}$, there is a unique residue $r_0 \in \{0, \dots, m - 1\}$ making $p_2 m + r_0 + \sum c_\gamma(j, u)\, \mathrm{dig}_B(p_1, \phi(j, u)) \equiv 0 \pmod{m}$. Since $p_2 m + r_0 < 8 m^3 = B$, the numbers $x = p_1 B + p_2 m + r_0$ are pairwise distinct and lie in $S_\gamma$, so $|S_\gamma| \ge (B - 1)^{d_0} \cdot 8 m^2$. By Bernoulli's inequality $B^{d_0} \le (B - 1)^{d_0} + d_0 B^{d_0 - 1}$ and $4 d_0 = 8 m^2 \le B$, we have $(B - 1)^{d_0} \ge \frac{3}{4} B^{d_0}$, whence
+\[
+|S_\gamma| \ge \frac{3}{4} B^{d_0} \cdot 8 m^2 = \frac{3 B^{d_0 + 1}}{4 m} = \frac{3 Q}{4 m}. \qedhere
+\]
+\end{proof}
+
+\section{\texorpdfstring{Multi-scale counterexample and $\ld(A + A) > 0$}{Multi-scale counterexample and d(A + A) > 0}}
+
+Define $M_0 = 16$ and, given $M_k$ at stage $k$, set
+\[
+L_{0,k} = 4 M_k Q_k, \qquad D_{0,k} = 4 m_k L_{0,k}, \qquad P_k = 2 m_k D_{0,k}, \qquad N_{0,k} = 10 m_k P_k = 80 m_k^3 L_{0,k},
+\]
+\[
+N_{k,r} = (4 m_k)^r N_{0,k} \quad (0 \le r \le R_k), \qquad M_{k+1} = N_{k, R_k}.
+\]
+Note the exact divisibility chain $B_k \mid Q_k \mid L_{0,k} \mid (D_{0,k}/2) \mid D_{0,k} \mid P_k \mid N_{0,k} \mid N_{k,r}$. At stage $k$, define four subsets of $[M_k, M_{k+1})$:
+\begin{enumerate}
+\item the \emph{interval} $I_k = [M_k, L_{0,k})$;
+\item the \emph{bridge grid} $J_k = \{t L_{0,k} : 1 \le t < 80 m_k^3\}$;
+\item the \emph{hubs} $H_k = \{h_k(j, u) : j < m_k,\, u < 2 m_k\}$, where
+\[
+h_k(j, u) = (j + 1) D_{0,k} + B_k^{\phi_k(j, u) + 1} \in [D_{0,k}, P_k),
+\]
+and write $H_k(\gamma) = \{h_k(\iota(i), \sigma_i(v)) : i < q_k,\, v < m_k\}$ for the $q_k m_k$ hubs of $\gamma = (\iota, \sigma)$;
+\item for each $r < R_k$, the \emph{spokes}
+\begin{multline*}
+W_{k,r} = \bigl\{w \in [N_{k,r}, N_{k,r+1}) : w \bmod P_k < D_{0,k}/2,\; m_k \mid \Lambda_{\gamma_r}(w),\\
+\forall s < d_{0,k},\, \mathrm{dig}_{B_k}(\lfloor w / B_k \rfloor, s) < B_k - 1\bigr\}.
+\end{multline*}
+\end{enumerate}
+Put $G_k = I_k \cup J_k \cup H_k \cup \bigcup_{r < R_k} W_{k,r} \subseteq [M_k, M_{k+1})$ and $A = [0, 16) \cup \bigcup_{k \ge 0} G_k$.
+
+If $w$ has all digits $\mathrm{dig}_{B_k}(\lfloor w / B_k \rfloor, s) < B_k - 1$ ($s < d_{0,k}$), then since $Q_k \mid (j + 1) D_{0,k}$ and $B_k^{\phi_k(j, u) + 1} = B_k^{\phi_k(j, u)} \cdot B_k$ increments digit $\phi_k(j, u)$ of $\lfloor w / B_k \rfloor$ by $1$ without carry,
+\begin{equation}\label{eq:shift}
+\Lambda_\gamma\bigl(h_k(j, u) + w\bigr) = \Lambda_\gamma(w) + c_\gamma(j, u).
+\end{equation}
+
+\begin{lemma}[Lower density of $A + A$]\label{lem:pos-ld}
+For every integer $n \ge 16$, $|(A + A) \cap [0, n)| \ge \frac{3}{256} n$. In particular, $\ld(A + A) \ge 3 / 256$.
+\end{lemma}
+
+\begin{proof}
+We first establish $|(A + A) \cap [0, n)| \ge \frac{3}{64} n$ on the two main regimes of stage $k$:
+\begin{itemize}
+\item \emph{Scale regime $4 N_{k,r} \le n \le N_{k,r+1}$ ($r < R_k$).} Write $\gamma_r = (\iota, \sigma)$, $p_0 = N_{k,r} / P_k \ge 40$, and $Q_n = \lfloor n / P_k \rfloor \ge 4 p_0 \ge 160$. Consider all sums
+\[
+z = h_k(\iota(i), \sigma_i(v)) + \bigl((p_0 + t) P_k + b Q_k + x\bigr)
+\]
+with $i < q_k$, $v < m_k$, $0 \le t < Q_n - p_0 - 1$, $0 \le b < 8 m_k M_k = D_{0,k} / (2 Q_k)$, and $x \in S_{\gamma_r}$ (from Lemma~\ref{lem:kernel}). Because $Q_k \mid P_k$ and $b Q_k + x < D_{0,k} / 2$, the second summand $w$ belongs to $W_{k,r}$ and $z < (p_0 + t + 2) P_k \le n$. Moreover, $(i, v, t, b, x)$ is uniquely recovered from $z$:
+\begin{enumerate}
+\item since $h_k + b Q_k + x < (m_k + 1) D_{0,k} + D_{0,k} / 2 < P_k$, $\lfloor z / P_k \rfloor = p_0 + t$ determines $t$;
+\item since $B_k^{\phi_k + 1} + b Q_k + x < Q_k + D_{0,k} / 2 < D_{0,k}$, $\lfloor (z \bmod P_k) / D_{0,k} \rfloor = \iota(i) + 1$ determines $i$;
+\item by~\eqref{eq:shift}, $\Lambda_{\gamma_r}(z) \bmod m_k = (0 + v) \bmod m_k = v$ determines $v$;
+\item subtracting $h_k(\iota(i), \sigma_i(v)) + (p_0 + t) P_k$ leaves $b Q_k + x$ with $x < Q_k$, determining $b$ and $x$.
+\end{enumerate}
+By Lemma~\ref{lem:kernel}, the number of such sums is at least
+\[
+q_k m_k (Q_n - p_0 - 1)(8 m_k M_k) \frac{3 Q_k}{4 m_k} \ge \frac{Q_n + 1}{2} \cdot 3 m_k^3 M_k Q_k = \frac{3}{64} (Q_n + 1) P_k > \frac{3}{64} n.
+\]
+\item \emph{Bridge regime $2 L_{0,k} \le n \le N_{0,k}$.} Put $Q_L = \lfloor n / L_{0,k} \rfloor \in [2, 80 m_k^3]$. The sums $t L_{0,k} + x$ with $1 \le t < Q_L$ ($t L_{0,k} \in J_k$) and $x \in [M_k, L_{0,k}) = I_k$ are pairwise distinct and $< n$, giving $(Q_L - 1)(L_{0,k} - M_k) \ge \frac{Q_L + 1}{3} \cdot \frac{3}{4} L_{0,k} > \frac{1}{4} n > \frac{3}{64} n$ elements.
+\end{itemize}
+Now let $n \ge 16$ and choose $k \ge 0$ with $M_k \le n < M_{k+1}$. Note that $0 \in [0, 16) \subseteq A$.
+\begin{itemize}
+\item If $4 M_k \le n \le 2 L_{0,k}$, the sums $0 + x$ with $x \in [M_k, \min(n, L_{0,k})) \subseteq I_k$ give $\min(n, L_{0,k}) - M_k \ge \frac{1}{8} n > \frac{3}{256} n$ elements.
+\item If $n \in [M_k, 4 M_k)$ with $k = 0$, $0 + 0 = 0 < n < 64$ gives $1 > \frac{3}{256} n$. If $n \in [M_k, 4 M_k)$ with $k \ge 1$ (where $M_k = N_{k-1, R_{k-1}}$) or $n \in [N_{k,r}, 4 N_{k,r})$ ($r < R_k$), the left endpoint $n' \in \{M_k, N_{k,r}\}$ already satisfies $|(A + A) \cap [0, n')| \ge \frac{3}{64} n'$ by the two regimes above, so $|(A + A) \cap [0, n)| \ge \frac{3}{64} n' > \frac{3}{256} n$. \qedhere
+\end{itemize}
+\end{proof}
+
+\section{Partition pigeonhole and sumset bottleneck}
+
+\begin{lemma}[Monochromatic configuration]\label{lem:pigeon}
+For every decomposition $A = A_1 \cup A_2$ and every $k \ge 0$, there exists $r < R_k$ such that $H_k(\gamma_r) \subseteq A_1$ or $H_k(\gamma_r) \subseteq A_2$.
+\end{lemma}
+
+\begin{proof}
+In each block $j < m_k$, the $2 m_k$ hubs $\{h_k(j, u) : u < 2 m_k\} \subseteq A_1 \cup A_2$ give at least $m_k$ hubs to $A_1$ or at least $m_k$ hubs to $A_2$. Since there are $m_k = 2 q_k$ blocks, one of $A_1, A_2$ wins at least $q_k$ blocks, which contains $H_k(\gamma_r)$ for some configuration $\gamma_r$.
+\end{proof}
+
+\begin{lemma}[Sumset bottleneck]\label{lem:bottleneck}
+Suppose $A = A_1 \sqcup A_2$ and $H_k(\gamma_r) \subseteq A_o$, where $\{A_t, A_o\} = \{A_1, A_2\}$. Then at $N = N_{k,r+1}$,
+\[
+|(A_t + A_t) \cap [0, N)| \le \frac{2 N}{m_k}.
+\]
+\end{lemma}
+
+\begin{proof}
+Inspect $A_t \cap [0, N)$. Since $G_{k'} \subseteq [M_{k'}, M_{k'+1})$ and $N \le M_{k+1}$, no stage $k' > k$ meets $[0, N)$, nor does $W_{k,u}$ for $u > r$. Every element of $[0, 16) \cup \bigcup_{k' < k} G_{k'} \cup I_k$ is $< L_{0,k} < D_{0,k} / 2 < P_k < N_{k,r}$, and every element of $W_{k,u}$ ($u < r$) is $< N_{k,r}$ with residue $< D_{0,k} / 2$ modulo $P_k$. Also $J_k, H_k \subseteq [0, N_{k,r})$, and $(H_k \cap A_t) \cap H_k(\gamma_r) = \emptyset$ because $H_k(\gamma_r) \subseteq A_o$ and $A_t \cap A_o = \emptyset$. Thus every $x \in A_t \cap [0, N)$ satisfies either $x \in W_{k,r}$, or $x < N_{k,r}$ with one of:
+\[
+\text{(a) } x \bmod P_k < D_{0,k}/2, \qquad \text{(b) } x \in J_k, \qquad \text{(c) } x \in H_k \setminus H_k(\gamma_r).
+\]
+
+Now let $x, y \in A_t$ with $z = x + y < N$:
+\begin{enumerate}
+\item If $x, y < N_{k,r}$, then $z \in E_1 := [0, 2 N_{k,r})$, which has size $2 N_{k,r} = N / (2 m_k)$.
+\item If both $x \bmod P_k < D_{0,k} / 2$ and $y \bmod P_k < D_{0,k} / 2$ (covering $x, y \in W_{k,r}$ and case~(a) paired with $W_{k,r}$), then $z \bmod P_k < D_{0,k}$, placing $z$ in $E_2 := \{z < N : z \bmod P_k < D_{0,k}\}$ of size $(N / P_k) D_{0,k} = N / (2 m_k)$.
+\item Otherwise one summand (say $y$) lies in $W_{k,r}$ and the other ($x$) satisfies~(b) or~(c). If $x \in J_k$, then $Q_k \mid L_{0,k} \mid x$, so $\Lambda_{\gamma_r}(x + y) = \Lambda_{\gamma_r}(y) \equiv 0 \pmod{m_k}$. If $x = h_k(j, u) \in H_k \setminus H_k(\gamma_r)$, then $(j, u)$ is outside the image of $\gamma_r$, so $c_{\gamma_r}(j, u) = 0$ and~\eqref{eq:shift} gives $\Lambda_{\gamma_r}(x + y) = \Lambda_{\gamma_r}(y) + 0 \equiv 0 \pmod{m_k}$. Hence $z$ lies in $E_3 := \{z < N : m_k \mid \Lambda_{\gamma_r}(z)\}$. Since $B_k \mid N$ and $m_k \mid B_k$, each of the $N / B_k$ values of $\lfloor z / B_k \rfloor$ admits exactly $B_k / m_k$ residues $z \bmod B_k$ with $m_k \mid \Lambda_{\gamma_r}(z)$, so $|E_3| = N / m_k$.
+\end{enumerate}
+Therefore $|(A_t + A_t) \cap [0, N)| \le |E_1| + |E_2| + |E_3| = \frac{N}{2 m_k} + \frac{N}{2 m_k} + \frac{N}{m_k} = \frac{2 N}{m_k}$.
+\end{proof}
+
+\begin{proof}[Proof of the Theorem]
+By Lemma~\ref{lem:pos-ld}, $\ld(A + A) \ge 3 / 256 > 0$. Suppose $A = A_1 \sqcup A_2$ with $\ld(A_1 + A_1) > 0$ and $\ld(A_2 + A_2) > 0$. Choose integers $K \ge 1$ and $N_* \ge 1$ such that $|(A_i + A_i) \cap [0, n)| \ge n / K$ for both $i = 1, 2$ and all $n \ge N_*$. Pick $k = \max(N_*, K)$, so that $m_k = 2k + 4 > 2K$ and $N_{0,k} > M_k \ge k \ge N_*$. By Lemma~\ref{lem:pigeon}, some $r < R_k$ satisfies $H_k(\gamma_r) \subseteq A_o$ for one piece $A_o \in \{A_1, A_2\}$. Letting $A_t$ be the other piece and $N = N_{k,r+1} \ge N_{0,k} \ge N_*$, Lemma~\ref{lem:bottleneck} gives
+\[
+\frac{N}{K} \le |(A_t + A_t) \cap [0, N)| \le \frac{2 N}{m_k} < \frac{N}{K},
+\]
+a contradiction.
+\end{proof}
+
+\begin{remark}[How the parameters fit together]
+\begin{itemize}
+\item Choosing $B_k = 8 m_k^3$ ensures both $m_k \mid B_k$ (so $\Lambda_\gamma(z) \bmod m_k$ is uniform over $z \bmod B_k$ for every fixed $\lfloor z / B_k \rfloor$) and $d_{0,k} / B_k = 2 m_k^2 / (8 m_k^3) = 1 / (4 m_k) \le 1 / 16$, so forbidding the top digit $B_k - 1$ across all $d_{0,k}$ coordinate digits keeps at least $(1 - 1 / B_k)^{d_{0,k}} \ge 3 / 4$ of the cube $[0, B_k^{d_{0,k}})$.
+\item The divisibility $Q_k \mid L_{0,k} \mid (D_{0,k} / 2) \mid D_{0,k} \mid P_k \mid N_{k,r}$ decouples the coarse scale arithmetic modulo $P_k$ and $D_{0,k}$ from the fine base-$B_k$ linear form $\Lambda_\gamma$ (which is $Q_k$-periodic).
+\item Setting $N_{k,r+1} = 4 m_k N_{k,r}$ makes the prefix leakage $2 N_{k,r} = N_{k,r+1} / (2 m_k)$ negligible ($O(1/m_k)$) at the top of window $r$, while losing only a bounded factor of $4$ in $\ld(A + A)$ across the transition $[N_{k,r}, 4 N_{k,r})$.
+\end{itemize}
+The argument above is formalized in Lean~4 in \nolinkurl{FormalConjectures/ErdosProblems/741.lean} (theorem \texttt{Erdos741.erdos\_741.variants.lower}).
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{Er94b}
+P.~Erd\H{o}s, \emph{Some problems in number theory, combinatorics and combinatorial geometry}, Math. Pannon. \textbf{5} (1994), 261--269.
+
+\bibitem{EP741}
+\emph{Erd\H{o}s Problem \#741}, \url{https://www.erdosproblems.com/741}.
+
+\bibitem{FC741}
+The Formal Conjectures Authors, \emph{FormalConjectures/ErdosProblems/741.lean},\\ \url{https://github.com/google-deepmind/formal-conjectures}.
+\end{thebibliography}
+
+\end{document}
