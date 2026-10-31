@@ -1,0 +1,137 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage{amssymb}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title[Erd\H{o}s Problem 282 (Graham's Variant)]{\texorpdfstring{Erd\H{o}s Problem 282 (Graham's Variant):\\ Non-Termination of the Greedy Algorithm on $1 / 119 \pmod{3}$}{Erdos Problem 282 (Graham's Variant): Non-Termination of the Greedy Algorithm on 1/119 (mod 3)}}
+\author{Ilia Pauzner}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The problem}
+
+Fix an arithmetic progression $A = \{n \ge 1 : n \equiv a \pmod{d}\}$ with $d > 1$. Given a rational $x \in (0, 1)$, the restricted greedy algorithm repeatedly chooses the smallest unused integer $n \in A$ with $n \ge 1 / x$ and replaces $x$ by $x - 1 / n$, terminating if and only if the remainder reaches $0$.
+
+Graham~\cite{Gr64b} proved that $m / n \in \mathbb{Q}_{> 0}$ is a finite sum of distinct unit fractions with denominators in $A$ if and only if
+\[
+\gcd\!\left(\frac{n}{\gcd(n, a, d)},\, \frac{d}{\gcd(a, d)}\right) = 1.
+\]
+In~\cite[p.~31]{ErGr80} (see~\cite{EP282, FC282}), Erd\H{o}s and Graham asked whether the restricted greedy algorithm always terminates whenever Graham's condition holds. The answer is no.
+
+\begin{theorem}
+Let $A = \{n \ge 1 : n \equiv 1 \pmod{3}\}$ ($a = 1$, $d = 3$) and $x = 1 / 119$. Although $\gcd(119, 3) = 1$ (and $1 / 119 = 1 / 136 + 1 / 952$ with $136, 952 \equiv 1 \pmod{3}$), the greedy algorithm starting from $1 / 119$ with denominators in $A$ never terminates.
+\end{theorem}
+
+\section{\texorpdfstring{Why greedy gets trapped: the $+1$ numerator loop}{Why greedy gets trapped: the +1 numerator loop}}
+
+When all positive integers are allowed ($A = \mathbb{N}$), Fibonacci observed in 1202 that picking $n = \lceil 1 / x \rceil$ strictly decreases the numerator of $x$ at every step, forcing termination. When $A = \{n \equiv 1 \pmod{3}\}$, the opposite happens whenever the current remainder has denominator $1$ less than a multiple of $3 \times \text{(numerator)}$:
+\begin{itemize}
+\item Starting at $1 / 119$: both $119 \equiv 2$ and $120 \equiv 0 \pmod{3}$ are forbidden, so greedy must pick $121$, leaving
+\[
+\frac{1}{119} - \frac{1}{121} = \frac{2}{14{,}399}.
+\]
+\item At $2 / 14{,}399$: dividing $14{,}399$ by $2$ gives $7{,}199.5$, whose ceiling $7{,}200$ is a forbidden multiple of $3$. Greedy must overshoot by $+1$ to $7{,}201$, leaving $3 / 103{,}687{,}199$.
+\item Each $+1$ overshoot raises the numerator by $+1$: $1 \to 2 \to 3 \to 4 \to 5 \to 6$. At step $6$, the unreduced numerator $7$ cancels against a factor of $7$ in the $6$th picked denominator, resetting the remainder back to a unit fraction $1 / (6 c_{\mathrm{new}} - 1)$ whose parameter $c_{\mathrm{new}}$ satisfies the exact same modular rules as $c = 20$.
+\end{itemize}
+
+\section{\texorpdfstring{Exact six-step algebraic derivation in $c$ alone}{Exact six-step algebraic derivation in c alone}}
+
+Let $c \ge 1$ be an integer satisfying
+\begin{equation}\label{eq:inv}
+c \equiv 6 \pmod{7} \qquad\text{and}\qquad \bigl(c \equiv 0 \pmod{5} \;\text{ or }\; c \equiv 18 \pmod{25}\bigr),
+\end{equation}
+and suppose that all integers $> 6 c$ congruent to $1 \pmod{3}$ are still unused (initially $c = 20$, giving $1 / (6 c - 1) = 1 / 119$, with every $n \equiv 1 \pmod{3}$ available). At each greedy step we divide the current denominator by the current numerator, round up, and advance to the smallest integer $\equiv 1 \pmod{3}$ (noting that each newly picked denominator strictly exceeds all previously removed ones, so no collision with used denominators ever occurs):
+
+\medskip
+\noindent\textbf{Step 1.} From $\dfrac{1}{6c - 1}$, dividing $6c - 1$ by $1$ gives $6c - 1 \equiv 2 \pmod{3}$, so greedy picks $6c + 1$:
+\[
+\frac{1}{6c - 1} - \frac{1}{6c + 1} = \frac{2}{(6c - 1)(6c + 1)} = \frac{2}{36c^2 - 1}.
+\]
+
+\noindent\textbf{Step 2.} From $\dfrac{2}{36c^2 - 1}$, dividing by $2$ gives $18c^2 - \tfrac{1}{2}$, whose ceiling $18c^2$ is $\equiv 0 \pmod{3}$. Greedy picks $18c^2 + 1$:
+\[
+\frac{2}{36c^2 - 1} - \frac{1}{18c^2 + 1} = \frac{3}{(36c^2 - 1)(18c^2 + 1)} = \frac{3}{648c^4 + 18c^2 - 1}.
+\]
+
+\noindent\textbf{Step 3.} Dividing $648c^4 + 18c^2 - 1$ by $3$ gives $216c^4 + 6c^2 - \tfrac{1}{3}$, whose ceiling is $\equiv 0 \pmod{3}$. Greedy picks $216c^4 + 6c^2 + 1$:
+\[
+\frac{3}{648c^4 + 18c^2 - 1} - \frac{1}{216c^4 + 6c^2 + 1} = \frac{4}{139{,}968c^8 + 7{,}776c^6 + 540c^4 + 12c^2 - 1}.
+\]
+
+\noindent\textbf{Step 4.} Dividing by $4$ gives $34{,}992c^8 + 1{,}944c^6 + 135c^4 + 3c^2 - \tfrac{1}{4}$; every coefficient is a multiple of $3$, so greedy picks $34{,}992c^8 + 1{,}944c^6 + 135c^4 + 3c^2 + 1$, leaving
+\[
+\frac{5}{9c^2(36c^2 + 1)(324c^4 + 9c^2 + 1)(46{,}656c^8 + 2{,}592c^6 + 180c^4 + 4c^2 + 1) - 1}.
+\]
+
+\noindent\textbf{Step 5.} Dividing that denominator by $5$ gives
+\[
+\frac{9}{5}\,c^2(36c^2 + 1)(324c^4 + 9c^2 + 1)(46{,}656c^8 + 2{,}592c^6 + 180c^4 + 4c^2 + 1) - \frac{1}{5}.
+\]
+By~\eqref{eq:inv}, either $5 \mid c$ (so $5 \mid c^2$) or $c \equiv 18 \equiv -7 \pmod{25}$ (so $c^2 \equiv -1 \pmod{25}$ and $36c^2 + 1 \equiv -35 \pmod{25}$ is divisible by $5$). Thus the $5$ cancels cleanly and the factor $9$ keeps the ceiling $\equiv 0 \pmod{3}$. Greedy adds $+1$, picking
+\begin{multline*}
+\frac{1}{5}\bigl(4{,}897{,}760{,}256c^{16} + 544{,}195{,}584c^{14} + 52{,}907{,}904c^{12} + 2{,}939{,}328c^{10} \\
++ 224{,}532c^8 + 9{,}072c^6 + 441c^4 + 9c^2 + 5\bigr)
+\end{multline*}
+and leaving numerator $6$ over
+\[
+\frac{9}{5}\,c^2(36c^2 + 1)(324c^4 + 9c^2 + 1)(46{,}656c^8 + \dots + 1)(4{,}897{,}760{,}256c^{16} + \dots + 9c^2 + 4) - 1.
+\]
+
+\noindent\textbf{Step 6.} Dividing that denominator by $6$ gives
+\[
+\frac{3}{10}\,c^2(36c^2 + 1)(324c^4 + 9c^2 + 1)(46{,}656c^8 + \dots + 1)(4{,}897{,}760{,}256c^{16} + \dots + 441c^4 + 9c^2 + 4) - \frac{1}{6}.
+\]
+Here $4$ always divides $c^2(324c^4 + 9c^2 + 1)(4{,}897{,}760{,}256c^{16} + \dots + 441c^4 + 9c^2 + 4)$: if $c$ is even then $4 \mid c^2$, while if $c$ is odd both parenthesized factors are even ($324 + 9 + 1 = 334$ and $441 + 9 + 4 = 454$). Hence the $2$ in $10$ cancels with a factor of $2$ to spare, so the ceiling is an even multiple of $3$. Greedy adds $+1$, picking
+\[
+\frac{7{,}996{,}018{,}508{,}417{,}728{,}512c^{32} + 1{,}776{,}893{,}001{,}870{,}606{,}336c^{30} + \dots + 615c^4 + 12c^2 + 10}{10}.
+\]
+Subtracting its reciprocal produces unreduced numerator $7$ over $(6c - 1)$ times all six picked denominators. Because $c \equiv 6 \pmod{7}$, we have $6c - 1 \equiv 0 \pmod{7}$, so every step's running denominator is $0 \bmod 7$, making this $6$th picked denominator congruent to $(0 + 1)/6 + 1 \equiv 6 + 1 \equiv 0 \pmod{7}$ as well. Cancelling $7$ resets the numerator to $1$, transforming $\dfrac{1}{6c - 1}$ in $6$ greedy steps into $1 / D(c)$, where
+\begin{align*}
+D(c) &= \frac{1}{350}(6c - 1)(6c + 1)(18c^2 + 1)(216c^4 + 6c^2 + 1) \\
+     &\quad \times (34{,}992c^8 + 1{,}944c^6 + 135c^4 + 3c^2 + 1)(4{,}897{,}760{,}256c^{16} + \dots + 9c^2 + 5) \\
+     &\quad \times (7{,}996{,}018{,}508{,}417{,}728{,}512c^{32} + \dots + 12c^2 + 10) \\[4pt]
+     &= 6 \cdot \frac{63{,}936{,}311{,}986{,}958{,}875{,}890{,}717{,}097{,}301{,}737{,}734{,}144\,c^{64} + \dots + 100c^2 + 100}{700} - 1.
+\end{align*}
+
+\section{Why the invariants repeat forever}
+
+Read the new parameter $c_{\mathrm{new}}$ directly off the resulting expression:
+\begin{enumerate}
+\item \emph{Integrality and $\equiv 5 \pmod{6}$ shape:} In the product, $6c - 1 \equiv 5 \pmod{6}$, all six picked denominators are even multiples of $3$ plus $1$ ($\equiv 1 \pmod{6}$), and $7 \equiv 1 \pmod{6}$. Thus the reduced denominator is an integer $\equiv 5 \pmod{6}$, i.e., $6 c_{\mathrm{new}} - 1$ for an integer $c_{\mathrm{new}} > c$ (with all $> 6 c_{\mathrm{new}}$ elements of $A$ still untouched).
+\item \emph{Preservation of $c_{\mathrm{new}} \equiv 6 \pmod{7}$:} Both $6c - 1$ and the $6$th picked denominator are multiples of $7$; cancelling the numerator $7$ removes only one of the two factors of $7$, so $6 c_{\mathrm{new}} - 1 \equiv 0 \pmod{7}$, i.e., $c_{\mathrm{new}} \equiv 6 \pmod{7}$.
+\item \emph{Alternation $0 \bmod 5 \leftrightarrow 18 \bmod 25$:}
+\begin{itemize}
+\item If $5 \mid c$ (as at $c = 20$), then $25 \mid c^2$ and $625 \mid c^4, c^6, \dots, c^{64}$, so in $c_{\mathrm{new}} = (\dots + 5{,}269c^4 + 100c^2 + 100)/700$ every $c$-term vanishes modulo $25$ after dividing by $700 = 25 \times 28$, leaving $c_{\mathrm{new}} \equiv 100 / 700 = 1 / 7 \equiv 18 \pmod{25}$.
+\item If $c \equiv 18 \pmod{25}$, substituting $c^2 \equiv -1 \pmod{25}$ makes the degree-$64$ numerator divisible by $125$, so dividing by $700$ gives $c_{\mathrm{new}} \equiv 0 \pmod{5}$.
+\end{itemize}
+\end{enumerate}
+
+By induction on the number of $6$-step rounds $K \ge 0$, starting at $c = 20$ ($x = 1 / 119$) produces a strictly positive remainder $1 / (6 c_K - 1) > 0$ after every $6 K$ steps, so the greedy algorithm never reaches $0$. This proves the Theorem. \qed
+
+\begin{remark}
+The argument above is formalized in Lean~4 in \nolinkurl{FormalConjectures/ErdosProblems/282.lean} (theorem \texttt{Erdos282.erdos\_282.variants.graham}).
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{Gr64b}
+R.~L.~Graham, \emph{On finite sums of unit fractions}, Proc.\ London Math.\ Soc.\ (3) \textbf{14} (1964), 193--207.
+
+\bibitem{ErGr80}
+P.~Erd\H{o}s and R.~L.~Graham, \emph{Old and new problems and results in combinatorial number theory}, Monographies de L'Enseignement Math\'ematique, vol.~28, Universit\'e de Gen\`eve, 1980.
+
+\bibitem{EP282}
+\emph{Erd\H{o}s Problem \#282}, \url{https://www.erdosproblems.com/282}.
+
+\bibitem{FC282}
+The Formal Conjectures Authors, \emph{FormalConjectures/ErdosProblems/282.lean},\\ \url{https://github.com/google-deepmind/formal-conjectures}.
+\end{thebibliography}
+
+\end{document}
