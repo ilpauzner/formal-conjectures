@@ -1,0 +1,185 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{array,longtable}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\Rep}{\operatorname{IsRepresentable}}
+\newcommand{\repSet}{\operatorname{representable}}
+
+\title[Resolution of Erd\H{o}s Problem 308 (All-$N$ Variant)]{\texorpdfstring{Affirmative Resolution of Erd\H{o}s Problem 308\\ for Every $N \ge 1$}{Affirmative Resolution of Erdos Problem 308 for Every N >= 1}}
+\author{Ilia Pauzner}
+\date{}
+
+\begin{document}
+\maketitle
+
+For integers $N \ge 1$ and $k \ge 1$, write $\Rep(N, k)$ if there exists a subset $A \subseteq \{1, \dots, N\}$ such that $\sum_{n \in A} 1 / n = k$, and put
+\[
+\repSet(N) := \{k \in \mathbb{N} : k > 0 \text{ and } \Rep(N, k)\},
+\qquad
+m_N := \lfloor H_N \rfloor = \Bigl\lfloor \sum_{n=1}^N \frac{1}{n} \Bigr\rfloor.
+\]
+In~\cite[p.~37]{ErGr80} (see~\cite{Cr99, EP308, FC308}), Erd\H{o}s and Graham asked whether $\repSet(N)$ has the shape $\{1, \dots, m\}$ for all sufficiently large $N$---settled asymptotically via Croot's bounds~\cite{Cr99}---and whether the same holds unconditionally for \emph{every} $N \ge 1$. We prove that the answer is yes.
+
+\begin{theorem}
+For every integer $N \ge 1$, there exists $m \in \mathbb{N}$ (specifically $m \in \{m_N - 1, m_N\}$) such that $\repSet(N) = \{1, \dots, m\}$.
+\end{theorem}
+
+\subsection*{Correspondence with the Lean formalization}
+The step-by-step proof below follows \texttt{FormalConjectures/ErdosProblems/308.lean}. All helper declarations live in a non-exposed private section inside \texttt{namespace Erdos308}, and the main theorem \texttt{erdos\_308.variants.all\_N} depends only on the standard Lean axioms $\{\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}\}$.
+
+\begingroup
+\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.44\textwidth}>{\raggedright\arraybackslash}p{0.52\textwidth}@{}}
+\hline
+This note & Lean (\texttt{Erdos308.*}) \\
+\hline
+\endhead
+$\Rep(N, k)$, $\repSet(N)$, $m_N$ & \texttt{IsRepresentable}, \texttt{representable}, \texttt{m} \\
+Binary-tree evaluation on $[b, b + 2^d)$ & \texttt{treeSum} (\texttt{treeSum\_Ico}), \texttt{treeAll} (\texttt{treeAll\_iff}) \\
+Rational $\log$ and $H_n$ bounds ($S_9 = 10^9$) & \texttt{logLb9}, \texttt{logUb9} (\texttt{log\_bds}), \texttt{hCeil9} (\texttt{hCeil9\_ok}) \\
+Threshold sequence $W(k)$ and $H_{W(k)}$ bounds & \texttt{W}, \texttt{W\_mono}, \texttt{W\_bds}, \texttt{harm\_W\_bds} \\
+Chebyshev $\psi$, $\theta$ bounds for $x \ge 300$ & \texttt{psi\_of\_rows}, \texttt{cert\_hi}, \texttt{psi\_le\_142}, \texttt{theta\_bds} \\
+Regime 1 ($1 \le k \le 9$) delta certificates & \texttt{treeLcm}, \texttt{bMask}, \texttt{chkCert}, \texttt{rep\_W\_le\_9} \\
+Modular gadget $(M, D, S, A, B, \eta)$ & \texttt{Gadget}, \texttt{mkDivG}, \texttt{extendG}, \texttt{binGadget}, \texttt{autoG} \\
+Prime-power denominator cancellation & \texttt{cancel\_step}, \texttt{descend\_sieve}, \texttt{peelPrime} \\
+$11520$-smooth endgame and budget lemma & \texttt{rep\_sieve}, \texttt{ValidPeel}, \texttt{rep\_W\_peel} \\
+Prime-reciprocal partial summation & \texttt{inv\_p\_real}, \texttt{invDelta9\_ok}, \texttt{invUb9\_ok}, \texttt{inv\_p\_le} \\
+Regimes 2--3 ($10 \le k \le 149$) row verifier & \texttt{chkRow}, \texttt{chkRow\_ok}, \texttt{rW0}--\texttt{rWE}, \texttt{rep\_W\_10\_149} \\
+Regime 4 ($k \ge 150$) analytic proof & \texttt{qa\_reg4\_le}, \texttt{regime4\_valid} \\
+Main reduction for all $N \ge 1$ & \texttt{all\_N\_main}, \texttt{erdos\_308.variants.all\_N} \\
+\hline
+\end{longtable}
+\endgroup
+
+\section{\texorpdfstring{Reduction to a Single Threshold Sequence $W(k)$}{Reduction to a Single Threshold Sequence W(k)}}
+
+Define $W : \mathbb{N} \to \mathbb{N}$ by
+\[
+W(0) := 0, \qquad W(1) := 1, \qquad W(2) := 10, \qquad W(k) := \lfloor e^{k + 0.4188} \rfloor \quad (k \ge 3).
+\]
+
+\begin{lemma}[Threshold harmonic bounds; \texttt{harm\_W\_bds}, \texttt{all\_N\_main}]\label{lem:W}
+\begin{enumerate}
+\item For every $k \ge 1$, $H_{W(k)} < k + 1$.
+\item For every $k \ge 5$, $k + 0.9958 < H_{W(k)} < k + 1$.
+\item Suppose $\Rep(W(k), k)$ holds for every integer $k \ge 1$. Then for every $N \ge 1$, $\repSet(N) = \{1, \dots, m\}$ where $m = m_N$ if $\Rep(N, m_N)$ and $m = m_N - 1$ otherwise.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+For $1 \le k \le 4$, $W(k) \in \{1, 10, 30, 82\}$. Evaluating rational harmonic upper bounds (\texttt{hCeil9\_ok}, derived from Pad\'e bounds on $\log\frac{k+1}{k}$ and monotonicity of the Euler--Mascheroni sequence) gives $H_1 = 1 < 2$, $H_{10} < 2.93 < 3$, $H_{30} < 4.00 = 4$, and $H_{82} < 5.00 = 5$.
+
+For $k \ge 5$, $W(k) \ge W(5) = 225 \ge 128$. Since $n \mapsto H_n - \log(n + 1)$ is strictly increasing and $n \mapsto H_n - \log n$ is strictly decreasing on $\mathbb{N}_{>0}$ (\texttt{Real.strictMono\_eulerMascheroniSeq}, \texttt{Real.strictAnti\_eulerMascheroniSeq'}), bounding $H_{128}$ to $10^{-9}$ precision yields for every $n \ge 128$:
+\[
+\log(n + 1) + 0.581119 < H_n < \log n + 0.581120.
+\]
+From $e^{k + 0.4188} < W(k) + 1$ and $W(k) \le e^{k + 0.4188}$, we obtain $\log(W(k) + 1) > k + 0.4188$ and $\log W(k) \le k + 0.4188$, giving
+\[
+k + 0.9958 < k + 0.999919 < H_{W(k)} < k + 0.999920 < k + 1.
+\]
+
+For~(3), every $k \in \repSet(N)$ satisfies $k = \sum_{n \in A} 1/n \le H_N$, whence $k \le \lfloor H_N \rfloor = m_N$. Conversely, if $1 \le k \le m_N - 1$, then $H_{W(k)} < k + 1 \le m_N \le H_N$; strict monotonicity of $H_n$ implies $W(k) < N$, so inclusion $\{1, \dots, W(k)\} \subseteq \{1, \dots, N\}$ lifts $\Rep(W(k), k)$ to $\Rep(N, k)$. Conditioning on $\Rep(N, m_N)$ gives $\repSet(N) = \{1, \dots, m_N\}$ or $\{1, \dots, m_N - 1\}$.
+\end{proof}
+
+Everything therefore reduces to establishing $\Rep(W(k), k)$ for every integer $k \ge 1$.
+
+\section{Effective Chebyshev and Prime-Reciprocal Bounds}
+
+Using $\log n = \sum_{d \mid n} \Lambda(d)$ in $\log(m!) = \sum_{n=1}^m \log n = \sum_{d=1}^m \Lambda(d)\lfloor m / d \rfloor$, any integer-weight stencil $\sum_i c_i \lfloor y / a_i \rfloor \ge 0$ with $\sum_i c_i / a_i = 0$ produces linear bounds on $\psi(x) = \sum_{n \le x} \Lambda(n)$ via Stirling's inequalities
+\[
+m \log m - m + \tfrac{1}{2}\log(2\pi m) \le \log(m!) \le m \log m - m + \tfrac{1}{2}\log(2\pi m) + \frac{1}{12 m}
+\]
+(\nolinkurl{Stirling.le_log_factorial_stirling}, \nolinkurl{Stirling.log_stirlingSeq'_antitone}). Applying a $39$-term lower stencil (\texttt{tLoData}) and a $44$-term upper stencil (\texttt{tHiNeg}) via \texttt{psi\_of\_rows}, checking $\operatorname{lcm}(1, \dots, n)$ for $n \le 299$ (\texttt{cert\_hi}) to deduce $\psi(y) \le 1.42 y$ for all $y \ge 0$ (\texttt{psi\_le\_142}), and bounding $\psi(x) - \theta(x)$ via $\psi(x^{1/2}) + \psi(x^{1/3}) + \dots$ (\nolinkurl{psi_sub_theta_le_psi_add_psi_add_psi}) gives:
+
+\begin{lemma}[Effective $\theta$ and prime-reciprocal bounds]\label{lem:theta}
+\begin{enumerate}
+\item For every real $x \ge 300$,
+\[
+0.9612\, x - 3.44 \log x - 4.26 \sqrt{x} \le \theta(x) \le 1.0386\, x.
+\]
+\item For integers $300 \le a \le b$, Abel summation on $\sum_{a < p \le b} \frac{\log p}{p \log p}$ yields
+\[
+\sum_{a < p \le b} \frac{1}{p} \le \frac{0.0817\, a + 3.44 \log a + 4.26 \sqrt{a}}{(a + 1)\log(a + 1)} + 1.0386 \log\!\Bigl(\frac{\log b}{\log a}\Bigr) + \frac{18.8}{a \log a}.
+\]
+In particular, when $250{,}000 \le a \le b$, $\sum_{a < p \le b} \frac{1}{p} \le \frac{0.229 + 1.0386 (\log b - \log a)}{\log a}$.
+\end{enumerate}
+\end{lemma}
+
+\section{\texorpdfstring{Regime 1 ($1 \le k \le 9$), Modular Gadgets, and Sieve Descent}{Regime 1 (1 <= k <= 9), Modular Gadgets, and Sieve Descent}}
+
+\subsection*{\texorpdfstring{Regime 1 ($1 \le k \le 9$)}{Regime 1 (1 <= k <= 9)}}
+For each $1 \le k \le 9$, an explicit subset $A_k \subseteq \{1, \dots, W(k)\}$ encoded as a delta list (\texttt{bMask}) is verified in exact integer arithmetic via $L_k = \operatorname{lcm}_{d \in A_k} d$ (\texttt{treeLcm}) to satisfy $\sum_{d \in A_k} (L_k / d) = k L_k$ (\texttt{chkCert}, \texttt{rep\_W\_le\_9}).
+
+\subsection*{\texorpdfstring{Modular gadgets and prime-peeling descent ($k \ge 10$)}{Modular gadgets and prime-peeling descent (k >= 10)}}
+Let $n = W(k) \ge 11520$ and choose $12 \le M_{\mathrm{top}} \le M_{\mathrm{bot}}$ with $M_{\mathrm{top}} M_{\mathrm{bot}} \le n$. Define the target prime-power exponent cap
+\[
+e_*(2) := 8, \qquad e_*(3) := 2, \qquad e_*(5) := 1, \qquad e_*(q) := 0 \quad (q \ge 7 \text{ prime}),
+\]
+so $\prod_q q^{e_*(q)} = 2^8 \cdot 3^2 \cdot 5 = 11520$. Starting from $\{1, \dots, n\}$, form the sieved set $S_0$ by discarding:
+\begin{enumerate}
+\item multiples of primes $p > n / M_{\mathrm{top}}$, with reciprocal sum bounded by
+\[
+\mathcal{L}_{\mathrm{tail}}(M_{\mathrm{top}}, n) := \sum_{m=1}^{M_{\mathrm{top}} - 1} \frac{1}{m} \sum_{n / M_{\mathrm{top}} < p \le n / m} \frac{1}{p};
+\]
+\item multiples of $p^2$ for primes $M_{\mathrm{bot}} < p \le n / M_{\mathrm{top}}$, bounded by $\mathcal{L}_{\mathrm{sq}}(M_{\mathrm{bot}}, n) := \sum_{M_{\mathrm{bot}} < p \le \sqrt{n}} \frac{H_{\lfloor n / p^2 \rfloor}}{p^2}$;
+\item multiples of $q^a$ ($a \ge e_*(q) + 1$) for primes $q \le M_{\mathrm{bot}}$, bounded by $\mathcal{L}_{\mathrm{QA}}(M_{\mathrm{bot}}, n)$ using $\sum_{a \ge 9} 2^{-a}$ at $q = 2$ and, for odd $q \le M_{\mathrm{bot}}$ with $k_q := \lfloor \log_2 q \rfloor + 1$, the dyadic bound $(2^{k_q} - 1)/(q^a \cdot 2^{\lfloor \log_2(n/q^a) \rfloor})$ when $q^a \cdot 2^{k_q - 1} \le n$ (removing only $2$-power-free cofactor multiples via binary subset sums, \texttt{sub\_two\_pow}) and $H_{\lfloor n / q^a \rfloor} / q^a$ otherwise (\texttt{descend\_sieve}).
+\end{enumerate}
+
+A \emph{modular gadget} (\texttt{Gadget}) is a tuple $G = (M, D, S_G, A, B, \eta)$ where $D \ge 1$ is $M$-smooth, $S_G \subseteq \{1, \dots, M\}$ consists of divisors of $D$, $\eta = \sum_{m \in S_G} 1/m$, and every integer $t \in [A, B]$ is a subset sum $t = \sum_{m \in T} D / m$ ($T \subseteq S_G$). Two constructions supply all gadgets needed:
+\begin{itemize}
+\item \textbf{Greedy residue-extension gadgets (\texttt{mkAutoSpec}, \texttt{autoG})}: starting from exact divisor DP on $D_0 = 2520$ (\texttt{mkDivG}), repeatedly multiplying $D \mapsto D q$ and choosing via \texttt{pickTq} a subset $T_q$ of divisors of $D q$ in $\{1, \dots, M\}$ not dividing $D$ whose scaled reciprocals $(D q)/m$ span all $q$ residues modulo $q$, lifting $[A, B] \mapsto [q A + s_q, q B]$ (\texttt{extendG}).
+\item \textbf{Binary-lifting prime-product gadgets (\texttt{binGadget})}: for any $R \ge 3$, taking $M = 2 R^2$ and $D = 2^{1 + \lfloor \log_2 R \rfloor} \prod_{3 \le q \le R} q$, the powers of $2$ up to $D_0 = 2^{1 + \lfloor \log_2 R \rfloor}$ cover $[1, D_0 - 1]$, and adjoining $\{q \cdot 2^j : 0 \le j \le \lfloor \log_2 q \rfloor\}$ for each odd prime $q \le R$ covers all residues modulo $q$ via $D_0^{-1} \bmod q$ (\texttt{ZMod.unitOfCoprime}), maintaining $B - A \ge D$ and $\eta \le 1$.
+\end{itemize}
+
+\begin{lemma}[Prime peeling and $11520$-smooth completion; \texttt{peelPrime}, \texttt{rep\_sieve}, \texttt{rep\_W\_peel}]\label{lem:peel}
+Suppose for every prime $p \in (M_{\mathrm{bot}}, n / M_{\mathrm{top}}]$ we assign a gadget $G_p$ with $G_p.M \le M_{\mathrm{bot}}$, $p \cdot G_p.M \le n$, and $G_p.B - G_p.A + 1 \ge p$. Let $k_p := \min(G_p.M, \lfloor n / (p \cdot G_p.M) \rfloor) \ge 1$ and
+\[
+\mathcal{L}_{\mathrm{peel}}(M_{\mathrm{top}}, M_{\mathrm{bot}}, n, G) := \sum_{M_{\mathrm{bot}} < p \le n / M_{\mathrm{top}}} \frac{G_p.\eta + (p - 1) / G_p.D}{p \, k_p}.
+\]
+If $\mathcal{L}_{\mathrm{tail}}(M_{\mathrm{top}}, n) + \mathcal{L}_{\mathrm{sq}}(M_{\mathrm{bot}}, n) + \mathcal{L}_{\mathrm{peel}}(M_{\mathrm{top}}, M_{\mathrm{bot}}, n, G) + \mathcal{L}_{\mathrm{QA}}(M_{\mathrm{bot}}, n) \le 0.9921$, then $\Rep(n, k)$ holds (for $n = W(k)$, $k \ge 5$).
+\end{lemma}
+
+\begin{proof}
+For each prime $p \in (M_{\mathrm{bot}}, n / M_{\mathrm{top}}]$, every element $p k_p m$ ($m \in G_p.S$) lies in $S_0$ and has no prime factor $> M_{\mathrm{bot}}$ other than $p^1$ (so the sets $\{p k_p m : m \in G_p.S\}$ are pairwise disjoint across distinct $p$). Since $G_p.D$ is $M_{\mathrm{bot}}$-smooth and $p > M_{\mathrm{bot}}$ is prime, $\gcd(p, G_p.D) = 1$. Multiplying the current $p$-residue of the numerator by $(G_p.D)^{-1} \bmod p$ selects a unique $t_p \in [G_p.A, G_p.A + p - 1] \subseteq [G_p.A, G_p.B]$ such that deleting $\{p k_p m : m \in T_p\}$ ($\sum_{m \in T_p} G_p.D / m = t_p$) eliminates $p$ from the reduced denominator (\texttt{cancel\_step}, \texttt{peelPrime}) at reciprocal cost $t_p / (G_p.D \cdot p k_p) \le (G_p.\eta + (p - 1)/G_p.D)/(p k_p)$.
+
+After peeling all $p \in (M_{\mathrm{bot}}, n / M_{\mathrm{top}}]$, every prime power dividing the reduced denominator of $\sum_{d \in S_1} 1/d$ has exponent $\le e_*(q)$, so $\sum_{d \in S_1} 1/d = u / 11520$ for some $u \in \mathbb{N}$ (\texttt{sub\_fac\_le}). By Lemma~\ref{lem:W}(2), $H_n > k + 0.9958$, so subtracting $\le 0.9921$ leaves $k < u / 11520 \le H_n < k + 1$, i.e.\ $0 < u - 11520 k < 11520$. All $54$ divisors of $11520$ remain in $S_1$, and subset-sum DP over those $54$ divisors represents every integer in $[0, 42466]$ as $\sum_{d \in U} 11520 / d$ (\texttt{rep\_sieve}). Deleting $U$ for $r = u - 11520 k < 11520 \le 42466$ yields $\sum_{d \in S_1 \setminus U} 1/d = k$.
+\end{proof}
+
+\section{\texorpdfstring{Closing $10 \le k \le 149$ and $k \ge 150$}{Closing 10 <= k <= 149 and k >= 150}}
+
+\subsection*{\texorpdfstring{Regimes 2--3 ($10 \le k \le 149$; \texttt{rW0}--\texttt{rWE}, \texttt{rep\_W\_10\_149})}{Regimes 2-3 (10 <= k <= 149)}}
+We partition $[10, 149]$ into $15$ intervals ($[10, 10], \dots, [18, 18]$, $[19, 21]$, $[22, 25]$, $[26, 34]$, $[35, 55]$, $[56, 99]$, $[100, 149]$). On each interval $[k_{\mathrm{lo}}, k_{\mathrm{hi}}]$, certified enclosures $n_{\mathrm{lo}} \le W(k) \le n_{\mathrm{hi}}$ (\texttt{W\_bds}) and a two-gadget step assignment $G_p = G_0$ for $p > \lfloor n / M_1^2 \rfloor$ and $G_p = G_1$ for $p \le \lfloor n / M_1^2 \rfloor$ ($s_i = \texttt{mkAutoSpec}(M_i, R_i)$) are checked by the $10^{-9}$-scaled integer verifier \texttt{chkRow}. Kernel evaluation (\texttt{by decide} in \texttt{rW0}--\texttt{rWE}) verifies $\texttt{rowUb9} \le 992{,}100{,}000$, whence \texttt{chkRow\_ok} yields $\Rep(W(k), k)$ for all $10 \le k \le 149$.
+
+\subsection*{\texorpdfstring{Regime 4 ($k \ge 150$; \texttt{qa\_reg4\_le}, \texttt{regime4\_valid})}{Regime 4 (k >= 150)}}
+For $k \ge 150$, set $R := \lfloor 4 k / 3 \rfloor + 220 \ge 420$ and let $G$ be the binary-lifting gadget (\texttt{binGadget}) at $R$, with $M_{\mathrm{top}} = M_{\mathrm{bot}} = M := 2 R^2 \in [352{,}800,\, 16 k^2]$, $840 k \le M$, $\eta \le 1$, and $G.D \ge 2 \exp(\theta(R))$. By Lemma~\ref{lem:theta}(1), $\theta(R) > k + 11$, so $G.D > 1000 e^{k + 1} > 1000 n$ ($n = W(k) < e^{k + 1}$), giving $(p - 1)/G.D < 0.001$ and $G.B - G.A \ge G.D > n$. Moreover $4 M^6 \le 4(16 k^2)^6 < e^k < n$, so $B := \lfloor n / M^2 \rfloor \ge 250{,}000$ and $a_{\mathrm{tail}} := \lfloor n / M \rfloor \ge B$. Setting $x := k / 150 \ge 1$ gives $\log M \le 13.17 \sqrt{x}$, $(\log M)^2 \le 173.5 x$, $\log a_{\mathrm{tail}} \ge 136.8 x$, and $\log B \ge 123.65 x$. Bounding the four loss components via Lemma~\ref{lem:theta}(2):
+\begin{enumerate}
+\item $\mathcal{L}_{\mathrm{tail}}(M, n) \le \dfrac{(0.229 + 1.0386 / 250000)(1 + \log M) + 1.0386(\log M + \frac{1}{2}(\log M)^2)}{\log a_{\mathrm{tail}}} \le 0.790$ (using $\sum_{m=1}^{M-1} \frac{1}{m}\log\frac{M}{m} \le \log M + \frac{1}{2}(\log M)^2$, \texttt{inv\_log\_le});
+\item $\mathcal{L}_{\mathrm{sq}}(M, n) \le \dfrac{H_{\lfloor n / (M+1)^2 \rfloor}}{M} < \dfrac{k + 1}{840 k} \le 0.003$;
+\item splitting $\mathcal{L}_{\mathrm{peel}}(M, M, n, G)$ at $B = \lfloor n / M^2 \rfloor$: on $(M, B]$ we have $k_p = M$ and $\sum_{M < p \le B} \frac{1.001}{M p} \le \frac{1.001}{M} \cdot 0.2 k \le 0.001$, while on $(B, a_{\mathrm{tail}}]$ we have $k_p \ge 1$, $\log a_{\mathrm{tail}} - \log B \le 13.18 x$, and $\sum_{B < p \le a_{\mathrm{tail}}} \frac{1.001}{p} \le 1.001 \times 0.113 < 0.114$, giving $\mathcal{L}_{\mathrm{peel}} \le 0.115$;
+\item $\mathcal{L}_{\mathrm{QA}}(M, n) \le 0.024$ (\texttt{qa\_reg4\_le}): powers of $2$ ($a \ge 9$) contribute $\le 1/256 < 0.004$; for odd primes $3 \le q \le M$, exponents $1 \le a \le 5$ satisfy $q^a \cdot 2^{\lfloor \log_2 q \rfloor} \le M^6 < n / 4$ so each contributes $\le 4 M / n$ (at most $20 M^2 / n \le 0.001$ in total), and exponents $a \ge 6$ contribute $\le \sum_{q=3}^M \sum_{a \ge 6} q^{1-a} \le \frac{1}{27}\sum_{q=3}^M \frac{1}{q(q-1)} \le \frac{1}{54} < 0.019$.
+\end{enumerate}
+Summing gives $\mathcal{L}_{\mathrm{tail}} + \mathcal{L}_{\mathrm{sq}} + \mathcal{L}_{\mathrm{peel}} + \mathcal{L}_{\mathrm{QA}} \le 0.790 + 0.003 + 0.115 + 0.024 = 0.932 \le 0.9921$. Lemma~\ref{lem:peel} yields $\Rep(W(k), k)$ for all $k \ge 150$, and Lemma~\ref{lem:W}(3) completes the proof of the Theorem. \qed
+
+\begin{thebibliography}{9}
+\bibitem{Cr99}
+E.~S.~Croot, III, \emph{On some questions of Erd\H{o}s and Graham about Egyptian fractions}, Mathematika \textbf{46} (1999), 359--372.
+
+\bibitem{ErGr80}
+P.~Erd\H{o}s and R.~L.~Graham, \emph{Old and new problems and results in combinatorial number theory}, Monographies de L'Enseignement Math\'ematique, vol.~28, Universit\'e de Gen\`eve, 1980.
+
+\bibitem{EP308}
+\emph{Erd\H{o}s Problem \#308}, \url{https://www.erdosproblems.com/308}.
+
+\bibitem{FC308}
+The Formal Conjectures Authors, \emph{FormalConjectures/ErdosProblems/308.lean},\\ \url{https://github.com/google-deepmind/formal-conjectures}.
+\end{thebibliography}
+
+\end{document}

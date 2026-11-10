@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{amsart}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+
+\newtheorem*{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\title[Erd\H{o}s Problem 308 (All-$N$ Variant)]{\texorpdfstring{Erd\H{o}s Problem 308 (All-$N$ Variant):\\ Unit-Fraction Integer Sums Form an Initial Interval for Every $N \ge 1$}{Erdos Problem 308 (All-N Variant): Unit-Fraction Integer Sums Form an Initial Interval for Every N >= 1}}
+\author{Ilia Pauzner}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The problem}
+
+For an integer $N \ge 1$, let $R(N)$ denote the set of positive integers $k$ that can be written as a sum of distinct unit fractions with denominators in $\{1, \dots, N\}$:
+\[
+R(N) = \Bigl\{ k \in \mathbb{Z}_{> 0} : \exists\, A \subseteq \{1, \dots, N\} \text{ with } \sum_{n \in A} \frac{1}{n} = k \Bigr\},
+\qquad
+m_N = \Bigl\lfloor \sum_{n=1}^N \frac{1}{n} \Bigr\rfloor = \lfloor H_N \rfloor.
+\]
+Clearly every $k \in R(N)$ satisfies $k \le m_N$. In~\cite[p.~37]{ErGr80} (see~\cite{EP308, FC308}), Erd\H{o}s and Graham asked whether $R(N)$ is an initial interval $\{1, \dots, m\}$ (so that no gap ever occurs below the largest representable integer), and whether $m \in \{m_N - 1, m_N\}$. Croot~\cite{Cr99} determined the threshold of representability up to $(1 + o(1)) \frac{(\log \log N)^2}{\log N}$, establishing both properties for all sufficiently large $N$. The remaining open variant in~\cite{FC308} asks whether $R(N) = \{1, \dots, m\}$ holds unconditionally for \emph{every} $N \ge 1$. We prove that it does.
+
+\begin{theorem}
+For every integer $N \ge 1$, there exists $m \in \{m_N - 1, m_N\}$ such that $R(N) = \{1, \dots, m\}$.
+\end{theorem}
+
+\section{Overview of the proof}
+
+\subsection*{\texorpdfstring{Step 1: Reduction from all $N \ge 1$ to one threshold $W(k)$ per integer $k \ge 1$}{Step 1: Reduction from all N >= 1 to one threshold W(k) per integer k >= 1}}
+Because $R(N) \subseteq R(N + 1)$ and $R(N) \subseteq \{1, \dots, m_N\}$, the only way $R(N)$ could fail to be $\{1, \dots, m_N - 1\}$ or $\{1, \dots, m_N\}$ is if some integer $1 \le k \le m_N - 1$ were missing from $R(N)$. If for each $k \ge 1$ we find a single threshold $W(k)$ satisfying
+\[
+H_{W(k)} < k + 1 \qquad\text{and}\qquad k \in R(W(k)),
+\]
+then whenever $1 \le k \le m_N - 1$ we have $H_{W(k)} < k + 1 \le m_N \le H_N$, forcing $W(k) < N$ and hence $k \in R(W(k)) \subseteq R(N)$. Thus every integer up to $m_N - 1$ belongs to $R(N)$, so $R(N)$ is either $\{1, \dots, m_N - 1\}$ or $\{1, \dots, m_N\}$.
+
+Choosing
+\[
+W(1) = 1, \qquad W(2) = 10, \qquad W(k) = \lfloor e^{k + 0.4188} \rfloor \quad (k \ge 3)
+\]
+places $H_{W(k)}$ right below $k + 1$: since $H_n = \log n + \gamma + O(1/n)$ with $\gamma \approx 0.5772$, the exponent shift $0.4188 < 1 - \gamma \approx 0.4228$ guarantees both $H_{W(k)} < k + 0.996 < k + 1$ (for $k \ge 3$; in fact $H_{W(k)} \in (k + 0.9958, k + 0.99992)$ for $k \ge 5$) and a surplus $H_{W(k)} - k > 0.9958$ of nearly one full unit of harmonic sum with which to cancel all unwanted prime powers from the denominator.
+
+\subsection*{\texorpdfstring{Step 2: Cancelling prime factors from the denominator within a $0.9921$ loss budget}{Step 2: Cancelling prime factors from the denominator within a 0.9921 loss budget}}
+For $1 \le k \le 9$, explicit subsets $A_k \subseteq \{1, \dots, W(k)\}$ summing to $k$ are given directly (for instance $1 = \frac{1}{1}$ and $2 = \frac{1}{1} + \frac{1}{2} + \frac{1}{3} + \frac{1}{6}$).
+
+For $k \ge 10$ ($n = W(k) \ge 33{,}483$), if we start from the full set $\{1, \dots, n\}$, its reciprocal sum $H_n \approx k + 0.996$ exceeds $k$ by almost $1$, but its reduced denominator divides $\operatorname{lcm}(1, \dots, n) \approx e^n$. We must trim a subset of denominators of total reciprocal sum $< 0.9921$ so that \emph{every} prime power outside $11520 = 2^8 \cdot 3^2 \cdot 5$ disappears from the reduced denominator, and then adjust the remaining integer multiple of $1/11520$ down to $k$:
+\begin{enumerate}
+\item \textbf{Large primes ($p > n / M_{\mathrm{top}}$) and prime squares ($p^2$ for $p > M_{\mathrm{bot}}$):} Simply omit all multiples of primes $p > n / M_{\mathrm{top}}$ (costing at most $\mathcal{L}_{\mathrm{tail}} = \sum_{m < M_{\mathrm{top}}} \frac{1}{m}\sum_{n/M_{\mathrm{top}} < p \le n/m} \frac{1}{p} \lesssim \frac{1.0386 (\log M_{\mathrm{top}})^2}{2 \log n}$) and all multiples of $p^2$ for $p > M_{\mathrm{bot}}$ (costing at most $\mathcal{L}_{\mathrm{sq}} \lesssim \frac{\log n}{M_{\mathrm{bot}}}$).
+\item \textbf{Medium primes ($M_{\mathrm{bot}} < p \le n / M_{\mathrm{top}}$):} Multiples of $p$ in the sieved set contribute too much harmonic weight ($\approx \log\frac{\log n}{\log M_{\mathrm{bot}}}$) to discard wholesale. Instead, we \emph{peel} each such prime $p$ modularly using a \emph{modular gadget} $G_p$: a small set $S_G \subseteq \{1, \dots, M_{\mathrm{bot}}\}$ of divisors of an $M_{\mathrm{bot}}$-smooth number $D$ whose subset sums $\sum_{m \in T} D/m$ hit every integer in a contiguous interval $[A, B]$ of length $\ge p$. Scaling $S_G$ by $p k_p$ ($k_p = \min(G_p.M, \lfloor n/(p \, G_p.M)\rfloor)$), coprimality $\gcd(p, D) = 1$ lets us pick $t_p \in [A, A + p - 1]$ in the exact residue class modulo $p$ that makes the $p$-adic valuation of the remaining rational sum $\ge 0$, at reciprocal cost only $\approx \eta / (p k_p)$ ($\eta = \sum_{m \in S_G} 1/m$).
+\item \textbf{Higher powers of small primes ($q^a$ for $q \le M_{\mathrm{bot}}$, $q^a \nmid 11520$):} Whenever $q^a \cdot 2^{\lfloor \log_2 q \rfloor} \le n$, instead of discarding all multiples of $q^a$ (which would cost $H_{\lfloor n/q^a\rfloor}/q^a$), we group multiples of $q^a$ by their odd part and use binary subset sums over $\{q^a, 2 q^a, 4 q^a, \dots\}$ at the single top dyadic scale to reduce $v_q$ one step at a time, cutting the cost down to $O(1 / q^a)$ (independent of $\log n$).
+\item \textbf{Final $11520$-smooth adjustment:} Once all primes $> 5$ and higher powers $2^9, 3^3, 5^2$ are cancelled, the remaining subset $S_1 \subseteq \{1, \dots, n\}$ has $\sum_{d \in S_1} 1/d = u / 11520 \in (k, k + 1)$. All $54$ divisors of $11520$ still lie in $S_1$, and their scaled reciprocals $\{11520 / d : d \mid 11520\}$ represent every integer in $[0, 42466]$ as a subset sum. Since $0 < u - 11520 k < 11520 < 42466$, deleting the matching divisor subset leaves $\sum_{d \in A} 1/d = k$ exactly.
+\end{enumerate}
+
+\section{Bridging Finite Computation and Asymptotics}
+
+To cover every $k \ge 10$ with no gap, we establish effective Chebyshev bounds
+\[
+0.9612\, x - 3.44 \log x - 4.26 \sqrt{x} \le \theta(x) \le 1.0386\, x \qquad (x \ge 300)
+\]
+directly from Stirling's formula and zero-mean integer linear combinations of $\log(\lfloor x / a_i \rfloor!)$, together with Abel summation for $\sum_{a < p \le b} 1/p$:
+\begin{itemize}
+\item \textbf{Intermediate regime ($10 \le k \le 149$):} Partitioned into $15$ intervals covering $[10, 149]$ ($[10, 10], \dots, [18, 18]$, $[19, 21]$, $[22, 25]$, $[26, 34]$, $[35, 55]$, $[56, 99]$, and $[100, 149]$). Each interval uses two greedy divisor-extension gadgets built from $D_0 = 2520$, and integer interval arithmetic at scale $10^9$ certifies that $\mathcal{L}_{\mathrm{tail}} + \mathcal{L}_{\mathrm{sq}} + \mathcal{L}_{\mathrm{peel}} + \mathcal{L}_{\mathrm{QA}} \le 0.9921$.
+\item \textbf{Asymptotic regime ($k \ge 150$):} Setting $R = \lfloor 4 k / 3 \rfloor + 220$ and building a single binary-lifting gadget on $D = 2^{1 + \lfloor \log_2 R \rfloor} \prod_{3 \le q \le R} q > 1000 e^{k+1} > 1000 n$ with smoothness $M = 2 R^2 \asymp \frac{32}{9} k^2$ and $\eta \le 1$ yields uniform analytic bounds across all $k \ge 150$:
+\[
+\mathcal{L}_{\mathrm{tail}} \le 0.790, \qquad
+\mathcal{L}_{\mathrm{sq}} \le 0.003, \qquad
+\mathcal{L}_{\mathrm{peel}} \le 0.115, \qquad
+\mathcal{L}_{\mathrm{QA}} \le 0.024,
+\]
+whose sum $0.932$ lies well inside the $0.9921$ budget.
+\end{itemize}
+
+Combining the regimes $1 \le k \le 9$, $10 \le k \le 149$, and $k \ge 150$ proves $k \in R(W(k))$ for every $k \ge 1$, establishing the Theorem for every $N \ge 1$.
+
+\begin{remark}
+The complete proof is formalized in Lean~4 without custom axioms in the repository file \texttt{FormalConjectures/ErdosProblems/308.lean} (theorem \texttt{erdos\_308.variants.all\_N}).
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{Cr99}
+E.~S.~Croot, III, \emph{On some questions of Erd\H{o}s and Graham about Egyptian fractions}, Mathematika \textbf{46} (1999), 359--372.
+
+\bibitem{ErGr80}
+P.~Erd\H{o}s and R.~L.~Graham, \emph{Old and new problems and results in combinatorial number theory}, Monographies de L'Enseignement Math\'ematique, vol.~28, Universit\'e de Gen\`eve, 1980.
+
+\bibitem{EP308}
+\emph{Erd\H{o}s Problem \#308}, \url{https://www.erdosproblems.com/308}.
+
+\bibitem{FC308}
+The Formal Conjectures Authors, \emph{FormalConjectures/ErdosProblems/308.lean},\\ \url{https://github.com/google-deepmind/formal-conjectures}.
+\end{thebibliography}
+
+\end{document}
