@@ -3814,7 +3814,9 @@ set_option maxHeartbeats 400000 in
               (∑ p ∈ (Ioc B a_tail).filter Nat.Prime, (1 : ℝ) / p) ≤ 113 / 1000) (by norm_num : (0 : ℝ) ≤ 1001 / 1000)]
       linarith
     linarith [qa_reg4_le hM_lb h4M6_lt_n]
-@[category API, AMS 11] lemma all_N_main (N : ℕ) (_hN : 1 ≤ N) : ∃ m', representable N = Set.Icc 1 m' := by
+open Classical in
+@[category API, AMS 11] lemma all_N_main (N : ℕ) :
+    representable N = Set.Icc 1 (if IsRepresentable N (m N) then m N else (m N) - 1) := by
   have hH (k : ℕ) (hk : 1 ≤ k) : (harmonic (W k) : ℝ) < (k : ℝ) + 1 := by
     by_cases hk5 : 5 ≤ k
     · exact (harm_W_bds hk5).2
@@ -3854,12 +3856,12 @@ set_option maxHeartbeats 400000 in
       linarith [hH k hk1, show (k : ℝ) + 1 ≤ m N from mod_cast (by omega : k + 1 ≤ m N)]
     obtain ⟨A, hA, hs⟩ := hRep k hk1
     exact ⟨A, hA.trans (Icc_subset_Icc_right (harm_mono.lt_iff_lt.mp (mod_cast hltR)).le), hs⟩
-  by_cases hmRep : IsRepresentable N (m N)
-  · refine ⟨m N, Set.ext fun k => ⟨fun hk => ⟨hk.1, hle_m hk⟩, fun ⟨hk1, hkm⟩ => ⟨hk1, ?_⟩⟩⟩
+  split_ifs with hmRep
+  · refine Set.ext fun k => ⟨fun hk => ⟨hk.1, hle_m hk⟩, fun ⟨hk1, hkm⟩ => ⟨hk1, ?_⟩⟩
     rcases eq_or_lt_of_le hkm with rfl | hlt
     · exact hmRep
     · exact hlow k hk1 (by omega)
-  · refine ⟨m N - 1, Set.ext fun k => ⟨fun hk => ⟨hk.1, ?_⟩, fun ⟨h1, hm⟩ => ⟨h1, hlow k h1 hm⟩⟩⟩
+  · refine Set.ext fun k => ⟨fun hk => ⟨hk.1, ?_⟩, fun ⟨h1, hm⟩ => ⟨h1, hlow k h1 hm⟩⟩
     have := hle_m hk
     have : k ≠ m N := fun h => hmRep (h ▸ hk.2)
     omega
@@ -3878,6 +3880,6 @@ $m$?
 @[category research solved, question, AMS 11]
 theorem erdos_308.variants.all_N :
     ∀ N ≥ 1, ∃ m, representable N = Set.Icc 1 m := by
-  exact all_N_main
+  exact fun N _ => ⟨_, all_N_main N⟩
 
 end Erdos308
